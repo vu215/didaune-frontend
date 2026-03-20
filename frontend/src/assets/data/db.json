@@ -1,0 +1,102 @@
+{
+  "cities": [
+    { "id": "hcm", "name": "Hồ Chí Minh" },
+    { "id": "hn", "name": "Hà Nội" },
+    { "id": "dl", "name": "Đắk Lắk" }
+  ],
+  "districts": [
+    { "id": "q1", "city_id": "hcm", "name": "Quận 1" },
+    { "id": "q12", "city_id": "hcm", "name": "Quận 12" },
+    { "id": "gv", "city_id": "hcm", "name": "Gò Vấp" },
+    { "id": "hk", "city_id": "hn", "name": "Hoàn Kiếm" },
+    { "id": "bmt", "city_id": "dl", "name": "TP. Buôn Ma Thuột" }
+  ],
+  "categories": [
+    { "id": "cafe", "name": "Cà phê", "icon": "fa-mug-hot", "color": "text-primary" },
+    { "id": "date", "name": "Hẹn hò", "icon": "fa-heart", "color": "text-rose-500" },
+    { "id": "group", "name": "Tụ tập", "icon": "fa-users", "color": "text-blue-500" },
+    { "id": "work", "name": "Làm việc", "icon": "fa-laptop-code", "color": "text-emerald-500" },
+    { "id": "photo", "name": "Sống ảo", "icon": "fa-camera", "color": "text-purple-500" }
+  ],
+  "amenities": [
+    { "id": "247", "name": "Mở cửa 24/7", "icon": "fa-clock" },
+    { "id": "parking", "name": "Chỗ đậu ô tô", "icon": "fa-car" },
+    { "id": "private", "name": "Có phòng riêng", "icon": "fa-door-closed" },
+    { "id": "wifi", "name": "Wifi cực mạnh", "icon": "fa-wifi" },
+    { "id": "quiet", "name": "Yên tĩnh", "icon": "fa-volume-mute" },
+    { "id": "acoustic", "name": "Nhạc Acoustic", "icon": "fa-music" }
+  ],
+  "places": [
+    {
+      "id": 1,
+      "name": "The Hidden Oasis",
+      "slug": "the-hidden-oasis",
+      "city_id": "hcm",
+      "district_id": "q12",
+      "address": "123 Đường Song Hành",
+      "image": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=500",
+      "rating": 4.8,
+      "review_count": 124,
+      "price_range": "30k - 65k",
+      "categories": ["cafe", "work"],
+      "amenities": ["wifi", "quiet", "parking"],
+      "is_hot": true,
+      "is_new": false
+    },
+    {
+      "id": 2,
+      "name": "The Retro Coffee",
+      "slug": "the-retro-coffee",
+      "city_id": "hcm",
+      "district_id": "gv",
+      "address": "Đường Phan Văn Trị",
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=500",
+      "rating": 4.7,
+      "review_count": 89,
+      "price_range": "25k - 55k",
+      "categories": ["cafe", "photo"],
+      "amenities": ["parking", "acoustic"],
+      "is_hot": true,
+      "is_new": true,
+      "discount": "20%"
+    },
+    {
+      "id": 3,
+      "name": "Skyline Roasters",
+      "slug": "skyline-roasters",
+      "city_id": "hn",
+      "district_id": "hk",
+      "address": "Quận Hoàn Kiếm",
+      "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=500",
+      "rating": 4.9,
+      "review_count": 210,
+      "price_range": "45k - 120k",
+      "categories": ["cafe", "date"],
+      "amenities": ["private", "wifi"],
+      "is_hot": true,
+      "is_new": false
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Toàn",
+      "email": "toan@example.com",
+      "avatar": "https://ui-avatars.com/api/?name=Toan&background=f97316&color=fff&size=128",
+      "bio": "Sinh viên IT @ FPT Polytechnic Quận 12",
+      "membership": "Vàng",
+      "points": 1200
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "place_id": 1,
+      "rating": 5,
+      "comment": "Không gian rất tuyệt vời cho việc học tập!",
+      "images": ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=200"],
+      "created_at": "2026-03-20T10:00:00Z"
+    }
+  ]
+}

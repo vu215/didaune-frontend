@@ -1,322 +1,209 @@
 <div class="p-4 lg:p-8 pb-24 md:pb-10 max-w-7xl mx-auto">
-          <div class="lg:hidden flex gap-2 mb-6">
-            <select
-              id="citySelectMobile"
-              class="w-1/2 bg-white border border-slate-200 text-slate-700 text-sm rounded-xl p-3 outline-none shadow-sm font-medium">
-              <option value="hcm" selected>TP. Hồ Chí Minh</option>
-              <option value="hn">Hà Nội</option>
-              <option value="dl">Đắk Lắk</option>
-            </select>
-            <select
-              id="districtSelectMobile"
-              class="w-1/2 bg-white border border-slate-200 text-slate-700 text-sm rounded-xl p-3 outline-none shadow-sm font-medium"></select>
-          </div>
+  <div class="lg:hidden flex gap-2 mb-6">
+    <select id="citySelectMobile" (change)="onCityChange($event)" [value]="dataService.currentCityId()"
+      class="w-1/2 bg-white border border-slate-200 text-slate-700 text-sm rounded-xl p-3 outline-none shadow-sm font-medium">
+      <option *ngFor="let city of cities()" [value]="city.id">{{ city.name }}</option>
+    </select>
+    <select id="districtSelectMobile" (change)="onDistrictChange($event)" [value]="dataService.currentDistrictId()"
+      class="w-1/2 bg-white border border-slate-200 text-slate-700 text-sm rounded-xl p-3 outline-none shadow-sm font-medium">
+      <option value="all">Tất cả Quận/Huyện</option>
+      <option *ngFor="let dist of districts()" [value]="dist.id">{{ dist.name }}</option>
+    </select>
+  </div>
 
-          <section
-            class="mb-10 relative bg-slate-900 rounded-3xl overflow-hidden shadow-xl aspect-[16/6] md:aspect-[16/5]">
-            <img
-              src="https://image.api.playstation.com/vulcan/ap/rnd/202302/2123/a200870c36ac0111532f11c7.png"
-              alt="Couple on cafe date"
-              class="absolute inset-0 w-full h-full object-cover object-center opacity-80" />
-            <div
-              class="relative z-10 p-8 md:p-12 lg:p-16 h-full flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent">
-              <span
-                class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider self-start">
-                Gợi ý hôm nay
-              </span>
-              <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 leading-tight tracking-tight">
-                Đừng bỏ lỡ bất cứ cuộc hẹn nào!
-              </h1>
-              <p class="text-slate-100 max-w-xl mb-6 text-sm md:text-base font-medium">
-                Hẹn hò, tụ tập, cà phê? DiDauNe có tất cả!
-              </p>
-              <button
-                class="bg-primary text-white font-bold px-6 py-3.5 rounded-xl hover:bg-orange-600 transition shadow-lg self-start flex items-center gap-2 text-sm md:text-base">
-                <i class="fa-solid fa-map-pin"></i>
-                Khám phá ngay
-              </button>
-            </div>
-          </section>
+  <section class="mb-10 relative bg-slate-900 rounded-3xl overflow-hidden shadow-xl aspect-[16/6] md:aspect-[16/5]">
+    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200"
+      alt="Couple on cafe date" class="absolute inset-0 w-full h-full object-cover object-center opacity-80" />
+    <div
+      class="relative z-10 p-8 md:p-12 lg:p-16 h-full flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+      <span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider self-start">
+        Gợi ý hôm nay
+      </span>
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 leading-tight tracking-tight">
+        Đừng bỏ lỡ bất cứ cuộc hẹn nào!
+      </h1>
+      <p class="text-slate-100 max-w-xl mb-6 text-sm md:text-base font-medium">
+        Hẹn hò, tụ tập, cà phê? DiDauNe có tất cả!
+      </p>
+      <button routerLink="/list"
+        class="bg-primary text-white font-bold px-6 py-3.5 rounded-xl hover:bg-orange-600 transition shadow-lg self-start flex items-center gap-2 text-sm md:text-base">
+        <i class="fa-solid fa-map-pin"></i>
+        Khám phá ngay
+      </button>
+    </div>
+  </section>
 
-          <section
-            class="mb-12 bg-gradient-to-r from-orange-400 to-rose-500 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between shadow-lg shadow-orange-200 relative overflow-hidden group cursor-pointer">
-            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300"></div>
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
+  <section
+    class="mb-12 bg-gradient-to-r from-orange-400 to-rose-500 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between shadow-lg shadow-orange-200 relative overflow-hidden group cursor-pointer">
+    <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+    <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
 
-            <div class="mb-4 md:mb-0 relative z-10">
-              <h2 class="text-2xl font-extrabold mb-2 flex items-center">
-                <i class="fa-solid fa-wand-magic-sparkles mr-3 text-yellow-300 text-3xl"></i>
-                Bí ý tưởng hẹn hò?
-              </h2>
-              <p class="text-orange-50 text-sm md:text-base max-w-md font-medium">
-                Chỉ cần nhập ngân sách, Trợ lý AI của DiDauNe sẽ thiết kế một lịch trình đi chơi hoàn hảo từ chiều đến
-                đêm cho bạn trong 3 giây.
-              </p>
-            </div>
-            <button
-              class="relative z-10 bg-white text-rose-500 font-bold px-8 py-4 rounded-xl hover:bg-orange-50 transition w-full md:w-auto whitespace-nowrap shadow-md flex items-center justify-center gap-2">
-              Thử AI ngay
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </section>
+    <div class="mb-4 md:mb-0 relative z-10">
+      <h2 class="text-2xl font-extrabold mb-2 flex items-center">
+        <i class="fa-solid fa-wand-magic-sparkles mr-3 text-yellow-300 text-3xl"></i>
+        Bí ý tưởng hẹn hò?
+      </h2>
+      <p class="text-orange-50 text-sm md:text-base max-w-md font-medium">
+        Chỉ cần nhập ngân sách, Trợ lý AI của DiDauNe sẽ thiết kế một lịch trình đi chơi hoàn hảo từ chiều đến
+        đêm cho bạn trong 3 giây.
+      </p>
+    </div>
+    <button [routerLink]="['/list']"
+      class="relative z-10 bg-white text-rose-500 font-bold px-8 py-4 rounded-xl hover:bg-orange-50 transition w-full md:w-auto whitespace-nowrap shadow-md flex items-center justify-center gap-2">
+      Thử AI ngay
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </section>
 
-          <section class="mb-12">
-            <h2 class="text-xl md:text-2xl font-bold mb-5 text-slate-800">Khám phá theo nhu cầu</h2>
-            <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
-              <button class="group flex flex-col items-center gap-3 min-w-[80px]">
-                <div
-                  class="w-16 h-16 rounded-2xl bg-white border border-slate-100 text-primary flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-primary_light">
-                  <i class="fa-solid fa-mug-hot"></i>
-                </div>
-                <span class="text-sm font-medium text-slate-800 group-hover:text-primary transition">Cà phê</span>
-              </button>
-              <button class="group flex flex-col items-center gap-3 min-w-[80px]">
-                <div
-                  class="w-16 h-16 rounded-2xl bg-white border border-slate-100 text-rose-500 flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-rose-100">
-                  <i class="fa-solid fa-heart"></i>
-                </div>
-                <span class="text-sm font-medium text-slate-800 group-hover:text-rose-500 transition">Hẹn hò</span>
-              </button>
-              <button class="group flex flex-col items-center gap-3 min-w-[80px]">
-                <div
-                  class="w-16 h-16 rounded-2xl bg-white border border-slate-100 text-blue-500 flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-blue-100">
-                  <i class="fa-solid fa-users"></i>
-                </div>
-                <span class="text-sm font-medium text-slate-800 group-hover:text-blue-500 transition">Tụ tập</span>
-              </button>
-              <button class="group flex flex-col items-center gap-3 min-w-[80px]">
-                <div
-                  class="w-16 h-16 rounded-2xl bg-white border border-slate-100 text-emerald-500 flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-emerald-100">
-                  <i class="fa-solid fa-laptop-code"></i>
-                </div>
-                <span class="text-sm font-medium text-slate-800 group-hover:text-emerald-500 transition">Làm việc</span>
-              </button>
-              <button class="group flex flex-col items-center gap-3 min-w-[80px]">
-                <div
-                  class="w-16 h-16 rounded-2xl bg-white border border-slate-100 text-purple-500 flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-purple-100">
-                  <i class="fa-solid fa-camera"></i>
-                </div>
-                <span class="text-sm font-medium text-slate-800 group-hover:text-purple-500 transition">Sống ảo</span>
-              </button>
-            </div>
-          </section>
-
-          <section class="mb-14">
-            <div class="flex justify-between items-end mb-5">
-              <div>
-                <h2 class="text-xl md:text-2xl font-bold text-slate-800">Đang hot rần rần 🔥</h2>
-                <p class="text-sm text-slate-500 mt-1">Những địa điểm được check-in nhiều nhất tuần qua</p>
-              </div>
-            </div>
-
-            <div class="flex gap-5 overflow-x-auto hide-scrollbar pb-4 snap-x">
-              <div
-                class="min-w-[260px] md:min-w-[300px] bg-white rounded-3xl p-3 shadow-sm border border-slate-100 snap-start cursor-pointer group hover:shadow-md transition">
-                <div class="relative overflow-hidden rounded-2xl mb-3">
-                  <span
-                    class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
-                    Mới mở
-                  </span>
-                  <img
-                    src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=300"
-                    class="w-full h-40 object-cover group-hover:scale-105 transition duration-300" />
-                </div>
-                <h3 class="font-bold text-slate-800 mb-1 group-hover:text-primary transition">The Retro Coffee</h3>
-                <p class="text-xs text-slate-500 mb-3">
-                  <i class="fa-solid fa-location-dot mr-1"></i>
-                  Đường Phan Văn Trị, Gò Vấp
-                </p>
-                <div class="flex justify-between items-center border-t border-slate-50 pt-3">
-                  <span
-                    class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-md font-bold flex items-center gap-1">
-                    <i class="fa-solid fa-fire"></i>
-                    Đang giảm 20%
-                  </span>
-                  <button class="text-slate-400 hover:text-rose-500 transition">
-                    <i class="fa-regular fa-heart"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                class="min-w-[260px] md:min-w-[300px] bg-white rounded-3xl p-3 shadow-sm border border-slate-100 snap-start cursor-pointer group hover:shadow-md transition">
-                <div class="relative overflow-hidden rounded-2xl mb-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=300"
-                    class="w-full h-40 object-cover group-hover:scale-105 transition duration-300" />
-                </div>
-                <h3 class="font-bold text-slate-800 mb-1 group-hover:text-primary transition">Rooftop Chill Bar</h3>
-                <p class="text-xs text-slate-500 mb-3">
-                  <i class="fa-solid fa-location-dot mr-1"></i>
-                  Quận 12, TP.HCM
-                </p>
-                <div class="flex justify-between items-center border-t border-slate-50 pt-3">
-                  <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">
-                    Nhạc Acoustic
-                  </span>
-                  <button class="text-slate-400 hover:text-rose-500 transition">
-                    <i class="fa-regular fa-heart"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                class="min-w-[260px] md:min-w-[300px] bg-white rounded-3xl p-3 shadow-sm border border-slate-100 snap-start cursor-pointer group hover:shadow-md transition">
-                <div class="relative overflow-hidden rounded-2xl mb-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=300"
-                    class="w-full h-40 object-cover group-hover:scale-105 transition duration-300" />
-                </div>
-                <h3 class="font-bold text-slate-800 mb-1 group-hover:text-primary transition">Minimalist Workspace</h3>
-                <p class="text-xs text-slate-500 mb-3">
-                  <i class="fa-solid fa-location-dot mr-1"></i>
-                  Quận Tân Bình
-                </p>
-                <div class="flex justify-between items-center border-t border-slate-50 pt-3">
-                  <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md font-bold">Mở 24/7</span>
-                  <button class="text-slate-400 hover:text-rose-500 transition">
-                    <i class="fa-regular fa-heart"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="mb-14">
-            <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-5">Bộ sưu tập theo xu hướng</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm">
-                <img
-                  src="https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&q=80&w=600"
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
-                  <h3 class="font-bold text-lg mb-1">Cày deadline xuyên đêm</h3>
-                  <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">12 địa điểm</span>
-                </div>
-              </div>
-              <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm">
-                <img
-                  src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=600"
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
-                  <h3 class="font-bold text-lg mb-1">Acoustic cuối tuần chill</h3>
-                  <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">8 địa điểm</span>
-                </div>
-              </div>
-              <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm hidden lg:block">
-                <img
-                  src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&q=80&w=600"
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
-                  <h3 class="font-bold text-lg mb-1">Hoàng hôn lãng mạn</h3>
-                  <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">15 địa điểm</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="mb-14">
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-xl md:text-2xl font-bold text-slate-800">
-                Quán Gợi Ý Tại
-                <span class="text-primary" id="displayLocation">TP. Hồ Chí Minh</span>
-              </h2>
-              <a href="#" class="text-primary text-sm font-semibold hover:underline hidden sm:block">
-                Xem tất cả
-                <i class="fa-solid fa-arrow-right ml-1"></i>
-              </a>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <div
-                class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
-                <button
-                  class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
-                  <i class="fa-solid fa-heart"></i>
-                </button>
-                <img
-                  src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=500"
-                  alt="Cafe"
-                  class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl" />
-                <div class="flex-1 flex flex-col justify-center sm:justify-start">
-                  <div class="flex items-center justify-between mb-2 mt-1">
-                    <span
-                      class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                      <i class="fa-solid fa-star text-xs"></i>
-                      4.8
-                    </span>
-                  </div>
-                  <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">
-                    The Hidden Oasis
-                  </h3>
-                  <p class="text-slate-500 text-sm mb-3 line-clamp-1">
-                    <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>
-                    Quận 12, TP.HCM
-                  </p>
-                  <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Làm việc</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Yên tĩnh</span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
-                <button
-                  class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
-                  <i class="fa-solid fa-heart"></i>
-                </button>
-                <img
-                  src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=500"
-                  alt="Cafe"
-                  class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl" />
-                <div class="flex-1 flex flex-col justify-center sm:justify-start">
-                  <div class="flex items-center justify-between mb-2 mt-1">
-                    <span
-                      class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                      <i class="fa-solid fa-star text-xs"></i>
-                      4.9
-                    </span>
-                  </div>
-                  <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">
-                    Skyline Roasters
-                  </h3>
-                  <p class="text-slate-500 text-sm mb-3 line-clamp-1">
-                    <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>
-                    Quận 1, HN
-                  </p>
-                  <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Hẹn hò</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">
-                      View đỉnh
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section
-            class="mt-16 bg-slate-800 rounded-3xl p-8 md:p-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between shadow-xl relative overflow-hidden">
-            <div
-              class="absolute right-0 top-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-            <div class="mb-6 md:mb-0 relative z-10 max-w-lg">
-              <span class="text-primary_light font-bold text-xs uppercase tracking-wider mb-2 block">
-                Hợp tác cùng DiDauNe
-              </span>
-              <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-3">Bạn là chủ quán Cafe / Nhà hàng?</h2>
-              <p class="text-slate-300 text-sm md:text-base leading-relaxed">
-                Đưa địa điểm của bạn lên nền tảng của chúng tôi để tiếp cận hàng ngàn khách hàng tiềm năng mỗi ngày.
-                Đăng ký hoàn toàn miễn phí!
-              </p>
-            </div>
-            <button
-              class="relative z-10 bg-primary text-white font-bold px-8 py-4 rounded-xl hover:bg-orange-600 transition whitespace-nowrap shadow-lg flex items-center gap-2">
-              <i class="fa-solid fa-store"></i>
-              Đăng ký đối tác
-            </button>
-          </section>
+  <section class="mb-12">
+    <h2 class="text-xl md:text-2xl font-bold mb-5 text-slate-800">Khám phá theo nhu cầu</h2>
+    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+      <button *ngFor="let cat of categories()" (click)="onCategoryClick(cat.id)"
+        class="group flex flex-col items-center gap-3 min-w-[80px]">
+        <div
+          [class]="'w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-2xl shadow-sm transition group-hover:-translate-y-1 group-hover:shadow-md ' + cat.color">
+          <i [class]="'fa-solid ' + cat.icon"></i>
         </div>
+        <span class="text-sm font-medium text-slate-800 group-hover:text-primary transition">{{ cat.name }}</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="mb-14">
+    <div class="flex justify-between items-end mb-5">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800">Đang hot rần rần 🔥</h2>
+        <p class="text-sm text-slate-500 mt-1">Những địa điểm được check-in nhiều nhất tuần qua</p>
+      </div>
+    </div>
+
+    <div class="flex gap-5 overflow-x-auto hide-scrollbar pb-4 snap-x">
+      <div *ngFor="let place of hotPlaces()" [routerLink]="['/detail', place.slug]"
+        class="min-w-[260px] md:min-w-[300px] bg-white rounded-3xl p-3 shadow-sm border border-slate-100 snap-start cursor-pointer group hover:shadow-md transition">
+        <div class="relative overflow-hidden rounded-2xl mb-3">
+          <span *ngIf="place.is_new"
+            class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
+            Mới mở
+          </span>
+          <img [src]="place.image" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300" />
+        </div>
+        <h3 class="font-bold text-slate-800 mb-1 group-hover:text-primary transition">{{ place.name }}</h3>
+        <p class="text-xs text-slate-500 mb-3">
+          <i class="fa-solid fa-location-dot mr-1"></i>
+          {{ place.address }}
+        </p>
+        <div class="flex justify-between items-center border-t border-slate-50 pt-3">
+          <span *ngIf="place.discount"
+            class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-md font-bold flex items-center gap-1">
+            <i class="fa-solid fa-fire"></i>
+            Đang giảm {{ place.discount }}
+          </span>
+          <span *ngIf="!place.discount" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">
+            {{ place.rating }} <i class="fa-solid fa-star text-orange-400"></i>
+          </span>
+          <button class="text-slate-400 hover:text-rose-500 transition">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-14">
+    <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-5">Bộ sưu tập theo xu hướng</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm">
+        <img src="https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&q=80&w=600"
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+        <div class="absolute bottom-4 left-4 text-white">
+          <h3 class="font-bold text-lg mb-1">Cày deadline xuyên đêm</h3>
+          <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">12 địa điểm</span>
+        </div>
+      </div>
+      <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm">
+        <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=600"
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+        <div class="absolute bottom-4 left-4 text-white">
+          <h3 class="font-bold text-lg mb-1">Acoustic cuối tuần chill</h3>
+          <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">8 địa điểm</span>
+        </div>
+      </div>
+      <div class="relative h-48 rounded-2xl overflow-hidden cursor-pointer group shadow-sm hidden lg:block">
+        <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&q=80&w=600"
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+        <div class="absolute bottom-4 left-4 text-white">
+          <h3 class="font-bold text-lg mb-1">Hoàng hôn lãng mạn</h3>
+          <span class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-1 rounded-md">15 địa điểm</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-14">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl md:text-2xl font-bold text-slate-800">
+        Quán Gợi Ý Tại
+        <span class="text-primary" id="displayLocation">{{ displayLocationLabel() }}</span>
+      </h2>
+      <a [routerLink]="['/list']" class="text-primary text-sm font-semibold hover:underline hidden sm:block">
+        Xem tất cả
+        <i class="fa-solid fa-arrow-right ml-1"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div *ngFor="let place of hotPlaces()" [routerLink]="['/detail', place.slug]"
+        class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
+        <button
+          class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+        <img [src]="place.image" alt="Cafe" class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl" />
+        <div class="flex-1 flex flex-col justify-center sm:justify-start">
+          <div class="flex items-center justify-between mb-2 mt-1">
+            <span
+              class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
+              <i class="fa-solid fa-star text-xs"></i>
+              {{ place.rating }}
+            </span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">
+            {{ place.name }}
+          </h3>
+          <p class="text-slate-500 text-sm mb-3 line-clamp-1">
+            <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>
+            {{ place.address }}
+          </p>
+          <div class="flex flex-wrap gap-2 mt-auto">
+            <span *ngFor="let cat of place.categories"
+              class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">{{ cat }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="mt-16 bg-slate-800 rounded-3xl p-8 md:p-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between shadow-xl relative overflow-hidden">
+    <div
+      class="absolute right-0 top-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+    <div class="mb-6 md:mb-0 relative z-10 max-w-lg">
+      <span class="text-primary_light font-bold text-xs uppercase tracking-wider mb-2 block">
+        Hợp tác cùng DiDauNe
+      </span>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-3">Bạn là chủ quán Cafe / Nhà hàng?</h2>
+      <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+        Đưa địa điểm của bạn lên nền tảng của chúng tôi để tiếp cận hàng ngàn khách hàng tiềm năng mỗi ngày.
+        Đăng ký hoàn toàn miễn phí!
+      </p>
+    </div>
+    <button
+      class="relative z-10 bg-primary text-white font-bold px-8 py-4 rounded-xl hover:bg-orange-600 transition whitespace-nowrap shadow-lg flex items-center gap-2">
+      <i class="fa-solid fa-store"></i>
+      Đăng ký đối tác
+    </button>
+  </section>
+</div>

@@ -3,8 +3,8 @@
     <div class="mb-6 flex flex-col gap-4">
         <div class="flex justify-between items-end">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Cà phê yên tĩnh</h1>
-                <p class="text-slate-500 text-sm">Tìm thấy <span class="font-bold text-primary">24</span> địa điểm phù
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Kết quả tìm kiếm</h1>
+                <p class="text-slate-500 text-sm">Tìm thấy <span class="font-bold text-primary">{{ filteredPlaces().length }}</span> địa điểm phù
                     hợp</p>
             </div>
         </div>
@@ -13,22 +13,18 @@
             class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap lg:flex-nowrap items-center gap-3">
 
             <div class="w-full lg:w-auto flex-1 min-w-[150px]">
-                <select id="districtFilter"
+                <select id="districtFilter" (change)="onDistrictChange($event)" [value]="dataService.currentDistrictId()"
                     class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary_light transition font-medium cursor-pointer">
                     <option value="all">Tất cả Quận/Huyện</option>
-                    <option value="q12" selected>Quận 12</option>
-                    <option value="gv">Gò Vấp</option>
-                    <option value="tb">Tân Bình</option>
+                    <option *ngFor="let dist of districts()" [value]="dist.id">{{ dist.name }}</option>
                 </select>
             </div>
 
             <div class="w-full lg:w-auto flex-1 min-w-[150px]">
-                <select
+                <select (change)="onCategoryChange($event)" [value]="dataService.selectedCategoryId()"
                     class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary_light transition font-medium cursor-pointer">
                     <option value="all">Tất cả thể loại</option>
-                    <option value="cafe" selected>Cà phê</option>
-                    <option value="nhahang">Nhà hàng</option>
-                    <option value="pub">Pub / Bar</option>
+                    <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.name }}</option>
                 </select>
             </div>
 
@@ -38,7 +34,6 @@
                     <option value="popular">Phổ biến nhất</option>
                     <option value="rating">Đánh giá cao nhất</option>
                     <option value="new">Mới nhất</option>
-                    <option value="distance">Gần tôi nhất</option>
                 </select>
             </div>
 
@@ -49,15 +44,15 @@
         </div>
 
         <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-            <span
+            <span *ngIf="dataService.currentDistrictId() !== 'all'" (click)="removeDistrictFilter()"
                 class="px-4 py-1.5 rounded-full text-xs font-bold bg-orange-100 text-orange-600 border border-orange-200 whitespace-nowrap cursor-pointer flex items-center gap-1">
-                Quận 12 <i class="fa-solid fa-xmark ml-1"></i>
+                {{ dataService.currentDistrictId() }} <i class="fa-solid fa-xmark ml-1"></i>
             </span>
-            <span
+            <span *ngIf="dataService.selectedCategoryId() !== 'all'" (click)="removeCategoryFilter()"
                 class="px-4 py-1.5 rounded-full text-xs font-bold bg-orange-100 text-orange-600 border border-orange-200 whitespace-nowrap cursor-pointer flex items-center gap-1">
-                Cà phê <i class="fa-solid fa-xmark ml-1"></i>
+                {{ dataService.selectedCategoryId() }} <i class="fa-solid fa-xmark ml-1"></i>
             </span>
-            <span
+            <span *ngIf="dataService.currentDistrictId() !== 'all' || dataService.selectedCategoryId() !== 'all'" (click)="removeDistrictFilter(); removeCategoryFilter()"
                 class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-200 text-slate-600 border border-slate-300 whitespace-nowrap cursor-pointer hover:bg-slate-300 transition">
                 Xóa tất cả
             </span>
@@ -66,112 +61,27 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
 
-        <div
+        <div *ngFor="let place of filteredPlaces()" [routerLink]="['/detail', place.slug]"
             class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
             <button
                 class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
                 <i class="fa-solid fa-heart"></i>
             </button>
-            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=500"
+            <img [src]="place.image"
                 alt="Cafe" class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl">
             <div class="flex-1 flex flex-col justify-center sm:justify-start">
                 <div class="flex items-center justify-between mb-2 mt-1">
                     <span
                         class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                        <i class="fa-solid fa-star text-xs"></i> 4.8
+                        <i class="fa-solid fa-star text-xs"></i> {{ place.rating }}
                     </span>
-                    <span class="text-xs font-medium text-slate-400 hidden sm:block">1.2km</span>
+                    <span class="text-xs font-medium text-slate-400 hidden sm:block">{{ place.discount ? 'Khuyến mãi' : '' }}</span>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">The
-                    Hidden Oasis</h3>
+                <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">{{ place.name }}</h3>
                 <p class="text-slate-500 text-sm mb-3 line-clamp-1"><i
-                        class="fa-solid fa-location-dot mr-1 text-slate-400"></i>Đ. Tô Ký, Quận 12</p>
+                        class="fa-solid fa-location-dot mr-1 text-slate-400"></i>{{ place.address }}</p>
                 <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Làm việc</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Yên tĩnh</span>
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
-            <button
-                class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
-                <i class="fa-solid fa-heart"></i>
-            </button>
-            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=500"
-                alt="Cafe" class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl">
-            <div class="flex-1 flex flex-col justify-center sm:justify-start">
-                <div class="flex items-center justify-between mb-2 mt-1">
-                    <span
-                        class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                        <i class="fa-solid fa-star text-xs"></i> 4.6
-                    </span>
-                    <span class="text-xs font-medium text-slate-400 hidden sm:block">2.5km</span>
-                </div>
-                <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">The
-                    Minimalist</h3>
-                <p class="text-slate-500 text-sm mb-3 line-clamp-1"><i
-                        class="fa-solid fa-location-dot mr-1 text-slate-400"></i>Nguyễn Văn Quá, Q12</p>
-                <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Sống ảo</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Tối giản</span>
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
-            <button
-                class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
-                <i class="fa-solid fa-heart"></i>
-            </button>
-            <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&q=80&w=500"
-                alt="Cafe" class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl">
-            <div class="flex-1 flex flex-col justify-center sm:justify-start">
-                <div class="flex items-center justify-between mb-2 mt-1">
-                    <span
-                        class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                        <i class="fa-solid fa-star text-xs"></i> 4.5
-                    </span>
-                    <span class="text-xs font-medium text-slate-400 hidden sm:block">3.0km</span>
-                </div>
-                <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">
-                    River View Coffee</h3>
-                <p class="text-slate-500 text-sm mb-3 line-clamp-1"><i
-                        class="fa-solid fa-location-dot mr-1 text-slate-400"></i>An Phú Đông, Q12</p>
-                <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">View
-                        sông</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Thoáng
-                        mát</span>
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100">
-            <button
-                class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex">
-                <i class="fa-solid fa-heart"></i>
-            </button>
-            <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&q=80&w=500"
-                alt="Cafe" class="w-32 h-32 sm:w-full sm:h-48 object-cover rounded-2xl">
-            <div class="flex-1 flex flex-col justify-center sm:justify-start">
-                <div class="flex items-center justify-between mb-2 mt-1">
-                    <span
-                        class="flex items-center gap-1 text-sm font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">
-                        <i class="fa-solid fa-star text-xs"></i> 4.7
-                    </span>
-                    <span class="text-xs font-medium text-slate-400 hidden sm:block">4.2km</span>
-                </div>
-                <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-primary transition">
-                    Vintage Vibe</h3>
-                <p class="text-slate-500 text-sm mb-3 line-clamp-1"><i
-                        class="fa-solid fa-location-dot mr-1 text-slate-400"></i>Lê Văn Khương, Q12</p>
-                <div class="flex flex-wrap gap-2 mt-auto">
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Tụ tập</span>
-                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Acoustic</span>
+                    <span *ngFor="let cat of place.categories" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">{{ cat }}</span>
                 </div>
             </div>
         </div>

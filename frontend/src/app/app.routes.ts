@@ -12,7 +12,7 @@ export const routes: Routes = [
     { path: '', component: Home, title: 'Trang chủ' },
     { path: 'list', component: List, title: 'Danh sách' },
     { path: 'favorite', component: Favorite, title: 'Yêu thích' },
-    { path: 'detail', component: Detail, title: 'Chi tiết' },
+    { path: 'detail/:slug', component: Detail, title: 'Chi tiết' },
     { path: 'profile', component: Profile, title: 'Hồ sơ' },
     { path: 'reviews', component: Reviews, title: 'Đánh giá' }
 ];

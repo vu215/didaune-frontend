@@ -1,20 +1,16 @@
-<div class="mx-auto">
-  <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 h-20">
-    <app-header />
-  </header>
-  <div class="pt-20 flex min-h-screen">
-
+<header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 h-20">
+  <app-header />
+</header>
+<div class="pt-20 flex min-h-screen">
   <aside class="hidden md:flex flex-col w-64 fixed top-20 bottom-0 left-0 bg-white border-r border-slate-100 z-40 overflow-y-auto hide-scrollbar">
-        <app-aside></app-aside>
+    <app-aside></app-aside>
   </aside>
 
   <main class="flex-1 md:pl-64 w-full">
     <router-outlet/>
   </main>
-
-  <nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-      <app-tabbar></app-tabbar>
-    </nav>
-
-  </div>
 </div>
+
+<nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+  <app-tabbar></app-tabbar>
+</nav>

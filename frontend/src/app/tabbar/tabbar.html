@@ -1,16 +1,25 @@
- <a href="/" class="flex flex-col items-center text-primary">
-        <i class="fa-solid fa-house text-xl mb-1"></i>
-        <span class="text-[10px] font-medium">Trang chủ</span>
-      </a>
-      <a href="/lich-trinh" class="flex flex-col items-center text-slate-400 hover:text-rose-500 transition">
-        <i class="fa-solid fa-wand-magic-sparkles text-xl mb-1"></i>
-        <span class="text-[10px] font-medium">Lịch trình</span>
-      </a>
-      <a href="/da-luu" class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition">
-        <i class="fa-regular fa-heart text-xl mb-1"></i>
-        <span class="text-[10px] font-medium">Đã lưu</span>
-      </a>
-      <a href="/ho-so" class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition">
-        <i class="fa-regular fa-user text-xl mb-1"></i>
-        <span class="text-[10px] font-medium">Hồ sơ</span>
-      </a>
+<a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: true}"
+  class="flex flex-col items-center text-slate-400">
+  <i class="fa-solid fa-house text-xl mb-1"></i>
+  <span class="text-[10px] font-medium">Trang chủ</span>
+</a>
+<a routerLink="/list" routerLinkActive="text-primary"
+  class="flex flex-col items-center text-slate-400 hover:text-rose-500 transition">
+  <i class="fa-solid fa-wand-magic-sparkles text-xl mb-1"></i>
+  <span class="text-[10px] font-medium">Khám phá</span>
+</a>
+<a routerLink="/favorite" routerLinkActive="text-primary"
+  class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition">
+  <i class="fa-regular fa-heart text-xl mb-1"></i>
+  <span class="text-[10px] font-medium">Đã lưu</span>
+</a>
+<a routerLink="#" routerLinkActive="text-primary"
+  class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition">
+  <i class="fa-solid fa-map-location-dot text-xl mb-1"></i>
+  <span class="text-[10px] font-medium">Bản đồ</span>
+</a>
+<a routerLink="/profile" routerLinkActive="text-primary"
+  class="flex flex-col items-center text-slate-400 hover:text-slate-600 transition">
+  <i class="fa-regular fa-user text-xl mb-1"></i>
+  <span class="text-[10px] font-medium">Hồ sơ</span>
+</a>
