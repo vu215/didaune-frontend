@@ -1,0 +1,57 @@
+      <div class="flex items-center justify-between px-4 lg:px-8 h-full gap-4">
+        <div class="w-auto md:w-64 shrink-0">
+          <a href="index.html" class="flex items-center gap-2 p-2 w-3/5 sm:w-4/5">
+            <img src="logo.svg" alt="logo" width="100%" />
+          </a>
+        </div>
+
+        <div class="flex-1 max-w-2xl hidden md:flex relative items-center">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 text-slate-400"></i>
+          <input
+            type="text"
+            value="Quán cà phê yên tĩnh"
+            class="w-full bg-slate-100 py-3 pl-11 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-primary_light transition font-medium text-slate-700" />
+          <button
+            class="absolute right-2 bg-white text-slate-600 w-8 h-8 rounded-lg shadow-sm hover:text-primary transition flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <button class="md:hidden w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+
+          <div class="hidden lg:flex items-center gap-2">
+            <button
+              class="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-primary hover:border-primary_light hover:bg-orange-50 transition flex items-center justify-center shadow-sm"
+              title="Tìm gần tôi">
+              <i class="fa-solid fa-location-crosshairs"></i>
+            </button>
+
+            <select
+              id="citySelectDesktop"
+              class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 outline-none cursor-pointer font-medium">
+              <option value="hcm" selected>Hồ Chí Minh</option>
+              <option value="hn">Hà Nội</option>
+              <option value="dl">Đắk Lắk</option>
+            </select>
+
+            <select
+              id="districtSelectDesktop"
+              class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 outline-none cursor-pointer w-40 font-medium">
+              <option value="all">Tất cả Quận</option>
+              <option value="q12" selected>Quận 12</option>
+              <option value="gv">Gò Vấp</option>
+            </select>
+          </div>
+
+          <div
+            class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-primary_light cursor-pointer">
+            <img
+              src="https://ui-avatars.com/api/?name=Toan&background=f97316&color=fff"
+              alt="Avatar"
+              class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>

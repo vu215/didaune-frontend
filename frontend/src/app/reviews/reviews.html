@@ -1,0 +1,95 @@
+<div class="p-4 lg:p-8 pb-24 md:pb-12 max-w-2xl mx-auto">
+
+    <div class="bg-white rounded-2xl p-4 flex items-center gap-4 mb-6 border border-slate-200 shadow-sm">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=200"
+            class="w-16 h-16 rounded-xl object-cover">
+        <div>
+            <p class="text-xs text-slate-500 font-medium mb-1">Bạn đang đánh giá:</p>
+            <h2 class="font-bold text-slate-800 text-lg">The Hidden Oasis</h2>
+            <p class="text-xs text-slate-400"><i class="fa-solid fa-location-dot mr-1"></i>Quận 12, TP.HCM</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 mb-6 text-center">
+        <h3 class="font-bold text-slate-800 text-lg mb-2">Trải nghiệm của bạn thế nào?</h3>
+        <p class="text-sm text-slate-500 mb-6" id="rating-text">Tuyệt vời, không có gì để chê!</p>
+
+        <div class="flex justify-center gap-2 text-4xl text-slate-200 star-rating" id="star-container">
+            <i class="fa-solid fa-star text-orange-400" data-val="1"></i>
+            <i class="fa-solid fa-star text-orange-400" data-val="2"></i>
+            <i class="fa-solid fa-star text-orange-400" data-val="3"></i>
+            <i class="fa-solid fa-star text-orange-400" data-val="4"></i>
+            <i class="fa-solid fa-star text-orange-400" data-val="5"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 mb-6">
+        <label class="block font-bold text-slate-800 mb-3">Chia sẻ chi tiết (Không bắt buộc)</label>
+        <textarea rows="4" placeholder="Đồ uống ở đây ngon không? Không gian có yên tĩnh để làm việc không?..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 outline-none focus:ring-2 focus:ring-primary_light focus:border-primary transition text-sm text-slate-700 resize-none mb-4"></textarea>
+
+        <label class="block font-bold text-slate-800 mb-3">Thêm ảnh thực tế</label>
+        <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+            <button
+                class="w-24 h-24 shrink-0 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition bg-slate-50">
+                <i class="fa-solid fa-camera text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Thêm ảnh</span>
+            </button>
+            <div class="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden group">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=200"
+                    class="w-full h-full object-cover">
+                <button
+                    class="absolute top-1 right-1 w-6 h-6 bg-black/50 text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 mb-8">
+        <label class="block font-bold text-slate-800 mb-4">Chọn nhanh điểm cộng của quán</label>
+        <div class="flex flex-wrap gap-2">
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only">
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    🚀 Wifi cực mạnh</div>
+            </label>
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only" checked>
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    🤫 Rất yên tĩnh</div>
+            </label>
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only" checked>
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    ☕ Nước ngon</div>
+            </label>
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only">
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    📸 View xịn xò</div>
+            </label>
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only">
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    🛋️ Ghế ngồi êm</div>
+            </label>
+            <label class="relative cursor-pointer">
+                <input type="checkbox" class="peer sr-only">
+                <div
+                    class="px-4 py-2 border border-slate-200 rounded-full text-sm font-medium text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition">
+                    🔌 Nhiều ổ cắm</div>
+            </label>
+        </div>
+    </div>
+
+    <button
+        class="hidden md:flex w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition shadow-lg items-center justify-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i> Gửi bài đánh giá
+    </button>
+
+</div>
