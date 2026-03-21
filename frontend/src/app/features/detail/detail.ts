@@ -1,7 +1,7 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Place } from '../../core/models/app.models';
+import { Place, PlaceReview } from '../../core/models/app.models';
 import { DataService } from '../../core/services/data.service';
 
 @Component({
@@ -11,18 +11,40 @@ import { DataService } from '../../core/services/data.service';
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
-export class Detail implements OnInit {
+export class Detail {
   private route = inject(ActivatedRoute);
-  private dataService = inject(DataService);
+  public dataService = inject(DataService);
 
   place = signal<Place | undefined>(undefined);
+  reviews = signal<PlaceReview[]>([]);
+  relatedPlaces = signal<Place[]>([]);
 
-  ngOnInit() {
-    this.route.params.subscribe(params => {
+  constructor() {
+    this.route.params.subscribe((params) => {
       const slug = params['slug'];
-      if (slug) {
-        this.dataService.getPlaceBySlug(slug).subscribe(data => this.place.set(data));
+
+      if (!slug) {
+        return;
       }
+
+      this.dataService.getPlaceBySlug(slug).subscribe((place) => {
+        this.place.set(place);
+
+        if (!place) {
+          return;
+        }
+
+        this.dataService.getReviewsByPlaceSlug(slug).subscribe((reviews) => this.reviews.set(reviews));
+        this.dataService
+          .getRelatedPlaces(place)
+          .subscribe((relatedPlaces) => this.relatedPlaces.set(relatedPlaces));
+      });
     });
+  }
+
+  toggleFavorite(event: Event, slug: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dataService.toggleFavorite(slug);
   }
 }

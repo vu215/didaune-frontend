@@ -83,7 +83,7 @@
       class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-primary_light cursor-pointer"
     >
       <img
-        src="https://ui-avatars.com/api/?name=Toan&background=f97316&color=fff"
+        [src]="dataService.currentUser().avatar"
         alt="Avatar"
         class="w-full h-full object-cover"
       />
@@ -194,6 +194,8 @@
           <input
             type="text"
             placeholder="Nhập họ và tên"
+            [ngModel]="authName()"
+            (ngModelChange)="authName.set($event)"
             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[14px] outline-none focus:border-primary focus:bg-white"
           />
         </div>
@@ -202,6 +204,8 @@
           <input
             type="email"
             placeholder="you@example.com"
+            [ngModel]="authEmail()"
+            (ngModelChange)="authEmail.set($event)"
             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[14px] outline-none focus:border-primary focus:bg-white"
           />
         </div>
@@ -210,6 +214,8 @@
           <input
             type="password"
             placeholder="Nhập mật khẩu"
+            [ngModel]="authPassword()"
+            (ngModelChange)="authPassword.set($event)"
             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[14px] outline-none focus:border-primary focus:bg-white"
           />
         </div>
@@ -224,6 +230,7 @@
 
         <button
           type="button"
+          (click)="submitAuth()"
           class="mt-1 w-full rounded-2xl bg-slate-900 px-4 py-2.5 text-[14px] font-semibold text-white hover:bg-slate-800 transition"
         >
           {{ authMode() === 'login' ? 'Đăng nhập' : 'Tạo tài khoản' }}

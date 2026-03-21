@@ -1,8 +1,8 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Category, District, Place } from '../../core/models/app.models';
-import { DataService } from '../../core/services/data.service';
 import { RouterModule } from '@angular/router';
+import { Amenity, Category, District, Place } from '../../core/models/app.models';
+import { DataService } from '../../core/services/data.service';
 
 @Component({
   selector: 'app-list',
@@ -11,46 +11,89 @@ import { RouterModule } from '@angular/router';
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
-export class List implements OnInit {
+export class List {
   public dataService = inject(DataService);
 
   places = signal<Place[]>([]);
   categories = signal<Category[]>([]);
-  allDistricts = signal<District[]>([]);
-  
-  districts = computed(() => 
-    this.allDistricts().filter(d => d.city_id === this.dataService.currentCityId())
+  areaOptions = signal<District[]>([]);
+  areas = computed(() =>
+    this.areaOptions().filter((area) => area.city_id === this.dataService.currentCityId())
   );
+  amenities = signal<Amenity[]>([]);
 
   filteredPlaces = computed(() => {
-    return this.places().filter(p => {
-      const matchCity = p.city_id === this.dataService.currentCityId();
-      const matchDistrict = this.dataService.currentDistrictId() === 'all' || p.district_id === this.dataService.currentDistrictId();
-      const matchCategory = this.dataService.selectedCategoryId() === 'all' || p.categories.includes(this.dataService.selectedCategoryId());
-      const matchSearch = !this.dataService.searchQuery() || 
-        p.name.toLowerCase().includes(this.dataService.searchQuery().toLowerCase()) ||
-        p.address.toLowerCase().includes(this.dataService.searchQuery().toLowerCase());
-        
-      return matchCity && matchDistrict && matchCategory && matchSearch;
+    const query = this.dataService.searchQuery().trim().toLowerCase();
+    const areaId = this.dataService.currentDistrictId();
+    const categoryId = this.dataService.selectedCategoryId();
+    const amenityId = this.dataService.selectedAmenityId();
+    const wardName = this.dataService.currentWardName().trim().toLowerCase();
+
+    const results = this.places().filter((place) => {
+      const matchCity = place.city_id === this.dataService.currentCityId();
+      const matchArea = areaId === 'all' || place.area_id === areaId;
+      const matchCategory = categoryId === 'all' || place.categories.includes(categoryId);
+      const matchAmenity = amenityId === 'all' || place.amenities.includes(amenityId);
+      const matchWard = !wardName || place.ward_name.toLowerCase().includes(wardName);
+      const searchable = [
+        place.name,
+        place.address,
+        place.description,
+        place.district_name,
+        ...place.highlights,
+        ...place.category_labels,
+      ]
+        .join(' ')
+        .toLowerCase();
+      const matchQuery = !query || searchable.includes(query);
+
+      return matchCity && matchArea && matchCategory && matchAmenity && matchWard && matchQuery;
+    });
+
+    return [...results].sort((first, second) => {
+      if (this.dataService.sortOption() === 'rating') {
+        return second.rating - first.rating;
+      }
+
+      if (this.dataService.sortOption() === 'name') {
+        return first.name.localeCompare(second.name);
+      }
+
+      if (this.dataService.sortOption() === 'new') {
+        return Number(second.is_new) - Number(first.is_new) || second.review_count - first.review_count;
+      }
+
+      return second.review_count - first.review_count || second.rating - first.rating;
     });
   });
 
-  ngOnInit() {
-    this.loadData();
+  constructor() {
+    this.dataService.getPlaces().subscribe((places) => this.places.set(places));
+    this.dataService.getCategories().subscribe((categories) => this.categories.set(categories));
+    this.dataService.getAreaOptions().subscribe((areas) => this.areaOptions.set(areas));
+    this.dataService.getAmenities().subscribe((amenities) => this.amenities.set(amenities));
   }
 
-  loadData() {
-    this.dataService.getPlaces().subscribe(data => this.places.set(data));
-    this.dataService.getCategories().subscribe(data => this.categories.set(data));
-    this.dataService.getDistricts().subscribe(data => this.allDistricts.set(data));
+  onDistrictChange(event: Event) {
+    this.dataService.currentDistrictId.set((event.target as HTMLSelectElement).value);
   }
 
-  onDistrictChange(event: any) {
-    this.dataService.currentDistrictId.set(event.target.value);
+  onCategoryChange(event: Event) {
+    this.dataService.selectedCategoryId.set((event.target as HTMLSelectElement).value);
   }
 
-  onCategoryChange(event: any) {
-    this.dataService.selectedCategoryId.set(event.target.value);
+  onAmenityChange(event: Event) {
+    this.dataService.selectedAmenityId.set((event.target as HTMLSelectElement).value);
+  }
+
+  onSortChange(event: Event) {
+    this.dataService.sortOption.set(
+      (event.target as HTMLSelectElement).value as 'popular' | 'rating' | 'name' | 'new'
+    );
+  }
+
+  clearSearch() {
+    this.dataService.searchQuery.set('');
   }
 
   removeDistrictFilter() {
@@ -59,5 +102,19 @@ export class List implements OnInit {
 
   removeCategoryFilter() {
     this.dataService.selectedCategoryId.set('all');
+  }
+
+  removeAmenityFilter() {
+    this.dataService.selectedAmenityId.set('all');
+  }
+
+  clearAllFilters() {
+    this.dataService.resetFilters();
+  }
+
+  toggleFavorite(event: Event, slug: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dataService.toggleFavorite(slug);
   }
 }

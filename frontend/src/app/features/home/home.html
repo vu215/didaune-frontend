@@ -36,10 +36,10 @@
   </div>
 
   <section
-    class="mb-10 relative bg-slate-900 rounded-3xl overflow-hidden shadow-xl aspect-[16/7] sm:aspect-[16/6] md:aspect-[16/5]"
+    class="mb-10 relative bg-slate-900 rounded-3xl overflow-hidden  aspect-[16/7] sm:aspect-[16/6] md:aspect-[16/5]"
   >
     <img
-      src="https://i.ibb.co/BV82dMGS/666f8ee1-805d-4963-a1a5-607da17ddc59.jpg"
+      src="/banner.png"
       alt="Couple on cafe date"
       loading="eager"
       decoding="async"
@@ -69,7 +69,7 @@
       </p>
     </div>
     <button
-      [routerLink]="['/list']"
+      [routerLink]="['/planner']"
       class="relative z-10 bg-white text-rose-500 font-bold px-8 py-4 rounded-xl hover:bg-orange-50 transition w-full md:w-auto whitespace-nowrap shadow-md flex items-center justify-center gap-2"
     >
       Thử AI ngay
@@ -223,7 +223,7 @@
         <span class="text-primary" id="displayLocation">{{ displayLocationLabel() }}</span>
       </h2>
       <a
-        [routerLink]="['/list']"
+        [routerLink]="['/discover']"
         class="text-primary text-sm font-semibold hover:underline hidden sm:block"
       >
         Xem tất cả
@@ -238,7 +238,10 @@
         class="bg-white rounded-3xl p-4 shadow-sm hover:shadow-lg transition flex flex-row sm:flex-col gap-4 relative group cursor-pointer border border-transparent hover:border-slate-100"
       >
         <button
+          type="button"
+          (click)="toggleFavorite($event, place.slug)"
           class="absolute top-6 right-6 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 z-10 transition hidden sm:flex"
+          [class]="dataService.isFavorite(place.slug) ? 'text-rose-500' : 'text-slate-300'"
         >
           <i class="fa-solid fa-heart"></i>
         </button>
@@ -267,7 +270,7 @@
           </p>
           <div class="flex flex-wrap gap-2 mt-auto">
             <span
-              *ngFor="let cat of place.categories"
+              *ngFor="let cat of place.category_labels"
               class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium"
             >
               {{ cat }}
@@ -297,6 +300,8 @@
       </p>
     </div>
     <button
+      type="button"
+      [routerLink]="['/planner']"
       class="relative z-10 bg-primary text-white font-bold px-8 py-4 rounded-xl hover:bg-orange-600 transition whitespace-nowrap shadow-lg flex items-center gap-2"
     >
       <i class="fa-solid fa-store"></i>

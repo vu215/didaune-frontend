@@ -1,145 +1,235 @@
-<div *ngIf="place() as p">
-    <div class="relative w-full h-64 md:h-[400px] bg-slate-200 md:p-6">
-        <button routerLink="/list"
-            class="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur w-10 h-10 rounded-full flex items-center justify-center text-slate-800 shadow-md hover:bg-white transition md:hidden">
-            <i class="fa-solid fa-arrow-left"></i>
+<div *ngIf="place() as p" class="pb-24 md:pb-12">
+  <div class="relative w-full bg-slate-950 md:p-6">
+    <button
+      routerLink="/discover"
+      class="absolute left-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-md backdrop-blur md:hidden"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <div class="grid h-full grid-cols-1 gap-2 md:grid-cols-3">
+      <img [src]="p.gallery[0]?.url || p.image" [alt]="p.name" class="h-72 w-full rounded-none object-cover md:col-span-2 md:h-[460px] md:rounded-[30px]" />
+      <div class="hidden gap-2 md:grid md:grid-rows-2">
+        <img [src]="p.gallery[1]?.url || p.image" [alt]="p.name" class="h-full w-full rounded-[24px] object-cover" />
+        <img [src]="p.gallery[2]?.url || p.image" [alt]="p.name" class="h-full w-full rounded-[24px] object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 py-6 lg:px-8">
+    <div class="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-start md:justify-between">
+      <div class="max-w-3xl">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span
+            *ngFor="let category of p.category_labels"
+            class="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-600"
+          >
+            {{ category }}
+          </span>
+          <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
+            {{ p.status }}
+          </span>
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 md:text-5xl">{{ p.name }}</h1>
+        <p class="mt-3 text-sm leading-6 text-slate-500 md:text-base">
+          <i class="fa-solid fa-location-dot mr-2"></i>{{ p.address }}
+        </p>
+        <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
+          <span class="font-bold text-orange-500">{{ p.rating }} ★</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-slate-600">{{ p.review_count }} danh gia</span>
+          <span class="text-slate-300">|</span>
+          <span class="font-medium text-slate-700">{{ p.price_range }}</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="toggleFavorite($event, p.slug)"
+          class="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-lg shadow-sm"
+          [class]="dataService.isFavorite(p.slug) ? 'text-rose-500' : 'text-slate-500'"
+        >
+          <i class="fa-solid fa-heart"></i>
         </button>
-        <div class="md:rounded-3xl overflow-hidden h-full w-full relative grid grid-cols-1 md:grid-cols-3 gap-2">
-            <img [src]="p.image"
-                alt="Cover" class="w-full h-full object-cover md:col-span-2">
-            <div class="hidden md:grid grid-rows-2 gap-2 h-full">
-                <img [src]="p.image"
-                    alt="Interior" class="w-full h-full object-cover">
-                <img [src]="p.image"
-                    alt="Coffee" class="w-full h-full object-cover">
-            </div>
-            <button
-                class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-slate-800 px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-white transition">
-                <i class="fa-solid fa-border-all mr-2"></i>Xem tất cả ảnh
-            </button>
-        </div>
+        <a
+          *ngIf="p.google_maps_link"
+          [href]="p.google_maps_link"
+          target="_blank"
+          rel="noreferrer"
+          class="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm"
+        >
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </div>
     </div>
 
-    <div class="max-w-5xl mx-auto px-4 lg:px-8 py-6 pb-24 md:pb-12">
-        <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-8 border-b border-slate-200 pb-6">
+    <div class="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+      <div class="space-y-8">
+        <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-black text-slate-900">Gioi thieu</h2>
+          <p class="mt-4 text-sm leading-7 text-slate-600 md:text-base">{{ p.description }}</p>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <span
+              *ngFor="let tag of p.highlights"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+            >
+              {{ tag }}
+            </span>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-black text-slate-900">Tien ich va vibe</h2>
+          <div class="mt-5 grid gap-3 sm:grid-cols-2">
+            <div
+              *ngFor="let amenity of p.amenity_labels"
+              class="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700"
+            >
+              <i class="fa-solid fa-check text-primary"></i>
+              <span>{{ amenity }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex items-center justify-between">
             <div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="bg-orange-100 text-orange-600 text-xs font-bold px-2.5 py-1 rounded-md" *ngFor="let cat of p.categories">{{ cat }}</span>
-                    <span class="bg-emerald-100 text-emerald-600 text-xs font-bold px-2.5 py-1 rounded-md">Đang mở cửa</span>
+              <h2 class="text-xl font-black text-slate-900">Danh gia tu cong dong</h2>
+              <p class="mt-1 text-sm text-slate-500">{{ reviews().length }} review dang hien thi</p>
+            </div>
+            <a [routerLink]="['/reviews', p.slug]" class="text-sm font-bold text-primary">Viet danh gia</a>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              *ngFor="let review of reviews()"
+              class="rounded-[24px] border border-slate-100 bg-slate-50 p-4"
+            >
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <img [src]="review.avatar" [alt]="review.user_name" class="h-12 w-12 rounded-full object-cover" />
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-slate-900">{{ review.user_name }}</h3>
+                      <span
+                        *ngIf="review.is_local_guide"
+                        class="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-600"
+                      >
+                        Local Guide
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-400">{{ review.created_at | date:'dd/MM/yyyy' }}</p>
+                  </div>
                 </div>
-                <h1 class="text-2xl md:text-4xl font-bold text-slate-800 mb-2">{{ p.name }}</h1>
-                <p class="text-slate-500 text-sm md:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-location-dot"></i> {{ p.address }}
-                </p>
-                <div class="flex items-center gap-4 mt-4">
-                    <div class="flex items-center gap-1 text-orange-500 font-bold text-lg">
-                        <i class="fa-solid fa-star"></i> {{ p.rating }} <span
-                            class="text-sm font-normal text-slate-500 underline ml-1 cursor-pointer">({{ p.review_count }} đánh giá)</span>
-                    </div>
-                    <span class="text-slate-300">|</span>
-                    <span class="text-slate-600 font-medium">{{ p.price_range }}</span>
-                </div>
+                <div class="text-sm font-bold text-orange-500">{{ review.rating }} ★</div>
+              </div>
+
+              <p class="mt-3 text-sm leading-6 text-slate-600">{{ review.comment }}</p>
+
+              <div *ngIf="review.images.length" class="mt-4 flex gap-3 overflow-x-auto pb-2">
+                <img
+                  *ngFor="let image of review.images"
+                  [src]="image"
+                  [alt]="review.user_name"
+                  class="h-24 w-24 rounded-2xl object-cover"
+                />
+              </div>
             </div>
+          </div>
+        </section>
 
-            <div class="hidden md:flex gap-3">
-                <button
-                    class="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-50 transition shadow-sm text-xl">
-                    <i class="fa-solid fa-heart"></i>
-                </button>
-                <button
-                    class="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 transition shadow-sm text-lg">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                </button>
+        <section *ngIf="relatedPlaces().length" class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-black text-slate-900">Goi y lien quan</h2>
+          <div class="mt-5 grid gap-4 md:grid-cols-2">
+            <a
+              *ngFor="let place of relatedPlaces()"
+              [routerLink]="['/detail', place.slug]"
+              class="flex gap-4 rounded-[24px] bg-slate-50 p-4 transition hover:bg-orange-50"
+            >
+              <img [src]="place.image" [alt]="place.name" class="h-24 w-24 rounded-2xl object-cover" />
+              <div class="min-w-0 flex-1">
+                <h3 class="text-lg font-bold text-slate-900">{{ place.name }}</h3>
+                <p class="mt-1 text-sm text-slate-500">{{ place.district_name }}</p>
+                <p class="mt-2 text-sm font-semibold text-orange-600">{{ place.rating }} ★</p>
+              </div>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <div class="space-y-6">
+        <section class="sticky top-24 rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-black text-slate-900">Thong tin nhanh</h2>
+
+          <div class="mt-5 space-y-4 text-sm">
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-slate-500">Khu vuc</span>
+              <span class="text-right font-semibold text-slate-800">{{ p.district_name }}</span>
             </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-8">
-
-                <section>
-                    <h2 class="text-xl font-bold mb-3">Giới thiệu</h2>
-                    <p class="text-slate-600 leading-relaxed text-sm md:text-base">
-                        Nằm ẩn mình trong một con hẻm nhỏ tĩnh lặng ở Quận 12, {{ p.name }} mang đến một không gian xanh
-                        mát, tách biệt hoàn toàn với khói bụi thành phố. Thiết kế tối giản kết hợp với ánh sáng tự nhiên,
-                        quán cực kỳ phù hợp cho những buổi chạy deadline tập trung hoặc đọc sách cuối tuần. Cà phê ở đây
-                        được rang mộc 100%, đảm bảo hương vị nguyên bản.
-                    </p>
-                </section>
-
-                <section>
-                    <h2 class="text-xl font-bold mb-4">Tiện ích nổi bật</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div class="flex items-center gap-3 text-slate-600" *ngFor="let am of p.amenities">
-                            <i class="fa-solid fa-check text-xl w-6 text-center text-primary"></i> <span
-                                class="text-sm font-medium">{{ am }}</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">Đánh giá từ cộng đồng</h2>
-                        <button class="text-primary text-sm font-bold hover:underline">Viết đánh giá</button>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-3">
-                                    <img src="https://ui-avatars.com/api/?name=Minh+Anh&background=random"
-                                        class="w-10 h-10 rounded-full">
-                                    <div>
-                                        <h4 class="font-bold text-sm">Minh Anh</h4>
-                                        <p class="text-[10px] text-slate-400">2 ngày trước</p>
-                                    </div>
-                                </div>
-                                <div class="text-orange-500 text-xs"><i class="fa-solid fa-star"></i> 5.0</div>
-                            </div>
-                            <p class="text-slate-600 text-sm mt-2">Nước uống ngon, đặc biệt là Trà Oolong dâu tằm. Không
-                                gian decor theo tone gỗ rất ấm cúng. Điểm trừ nhỏ là hơi ít bàn to cho nhóm đông người.</p>
-                        </div>
-                    </div>
-                </section>
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-slate-500">Website</span>
+              <a *ngIf="p.website" [href]="p.website" target="_blank" rel="noreferrer" class="text-right font-semibold text-primary">Mo link</a>
+              <span *ngIf="!p.website" class="font-semibold text-slate-800">Dang cap nhat</span>
             </div>
-
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm sticky top-24">
-                    <h3 class="font-bold text-lg mb-4">Thông tin hoạt động</h3>
-
-                    <ul class="space-y-4 mb-6">
-                        <li class="flex justify-between items-center text-sm">
-                            <span class="text-slate-500 flex items-center gap-2"><i
-                                    class="fa-regular fa-clock w-4 text-center"></i> Giờ mở cửa</span>
-                            <span class="font-bold text-slate-800">07:00 - 22:30</span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm">
-                            <span class="text-slate-500 flex items-center gap-2"><i
-                                    class="fa-solid fa-phone w-4 text-center"></i> Điện thoại</span>
-                            <span class="font-bold text-primary">090 123 4567</span>
-                        </li>
-                    </ul>
-
-                    <button
-                        class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-700 transition shadow-lg flex items-center justify-center gap-2 mb-3">
-                        <i class="fa-solid fa-map-location-dot"></i> Chỉ đường ngay
-                    </button>
-                    <button
-                        class="w-full bg-primary_light text-primary font-bold py-3.5 rounded-xl hover:bg-orange-200 transition">
-                        Đặt bàn trước
-                    </button>
-
-                    <div class="w-full h-32 bg-slate-200 rounded-xl mt-6 overflow-hidden relative border border-slate-200">
-                        <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=400"
-                            alt="Map" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div
-                                class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg animate-bounce">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-slate-500">Dien thoai</span>
+              <span class="text-right font-semibold text-slate-800">{{ p.phone || 'Dang cap nhat' }}</span>
             </div>
-        </div>
+          </div>
+
+          <div class="mt-6 space-y-3">
+            <a
+              *ngIf="p.google_maps_link"
+              [href]="p.google_maps_link"
+              target="_blank"
+              rel="noreferrer"
+              class="flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white"
+            >
+              <i class="fa-solid fa-map-location-dot"></i>
+              Chi duong ngay
+            </a>
+            <a
+              [routerLink]="['/reviews', p.slug]"
+              class="flex items-center justify-center gap-2 rounded-2xl bg-orange-100 px-4 py-3 text-sm font-bold text-primary"
+            >
+              <i class="fa-solid fa-pen"></i>
+              Viet review
+            </a>
+            <a
+              *ngIf="p.can_claim"
+              routerLink="/profile"
+              class="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700"
+            >
+              <i class="fa-solid fa-store"></i>
+              Claim dia diem
+            </a>
+          </div>
+
+          <div *ngIf="p.hours.length" class="mt-6 rounded-[24px] bg-slate-50 p-4">
+            <h3 class="font-bold text-slate-900">Gio mo cua</h3>
+            <div class="mt-3 space-y-2 text-sm">
+              <div *ngFor="let hour of p.hours" class="flex justify-between gap-4">
+                <span class="text-slate-500">{{ hour.day }}</span>
+                <span class="text-right font-semibold text-slate-700">{{ hour.times.join(', ') || 'Dong cua' }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section *ngIf="p.owner_posts.length" class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 class="text-xl font-black text-slate-900">Cap nhat tu chu quan</h2>
+          <div class="mt-4 space-y-4">
+            <div *ngFor="let post of p.owner_posts" class="rounded-[22px] bg-slate-50 p-4">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                {{ post.published_at || 'Gan day' }}
+              </p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">{{ post.text || 'Chu quan co cap nhat moi cho dia diem nay.' }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
+  </div>
 </div>
