@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataService } from '../services/data.service';
-import { Amenity } from '../models/app.models';
+import { Amenity } from '../../../core/models/app.models';
+import { DataService } from '../../../core/services/data.service';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
