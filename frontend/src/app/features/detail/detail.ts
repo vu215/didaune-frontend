@@ -1,8 +1,8 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { DataService } from '../services/data.service';
-import { Place } from '../models/app.models';
+import { Place } from '../../core/models/app.models';
+import { DataService } from '../../core/services/data.service';
 
 @Component({
   selector: 'app-detail',

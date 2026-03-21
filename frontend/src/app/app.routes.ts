@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { Home } from './home/home';
-import { List } from './list/list';
-import { Favorite } from './favorite/favorite';
-import { Detail } from './detail/detail';
-import { Profile } from './profile/profile';
-import { Reviews } from './reviews/reviews';
+import { Detail } from './features/detail/detail';
+import { Favorite } from './features/favorite/favorite';
+import { Home } from './features/home/home';
+import { List } from './features/list/list';
+import { Profile } from './features/profile/profile';
+import { Reviews } from './features/reviews/reviews';
 
 
 

@@ -9,6 +9,14 @@ export interface District {
   name: string;
 }
 
+export interface Ward {
+  code: number;
+  name: string;
+  province_code: number;
+  division_type?: string;
+  codename?: string;
+}
+
 export interface Category {
   id: string;
   name: string;
