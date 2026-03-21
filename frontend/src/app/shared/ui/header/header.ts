@@ -1,5 +1,6 @@
 import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { City, Ward } from '../../../core/models/app.models';
 import { DataService } from '../../../core/services/data.service';
 import { Router } from '@angular/router';
@@ -7,7 +8,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -22,6 +23,9 @@ export class Header implements OnInit {
   mobileSearchOpen = signal(false);
   wardQuery = signal('');
   wardDropdownOpen = signal(false);
+  authName = signal('');
+  authEmail = signal(this.dataService.currentUser().email);
+  authPassword = signal('');
   filteredWards = computed(() => {
     const query = this.wardQuery().trim().toLowerCase();
 
@@ -41,6 +45,7 @@ export class Header implements OnInit {
     this.dataService.currentCityId.set(event.target.value);
     this.dataService.currentDistrictId.set('all');
     this.dataService.currentWardCode.set('');
+    this.dataService.currentWardName.set('');
     this.wardQuery.set('');
     this.wardDropdownOpen.set(false);
     this.loadWards(event.target.value);
@@ -53,6 +58,7 @@ export class Header implements OnInit {
 
     if (!value) {
       this.dataService.currentWardCode.set('');
+      this.dataService.currentWardName.set('');
       return;
     }
 
@@ -61,6 +67,7 @@ export class Header implements OnInit {
     );
 
     this.dataService.currentWardCode.set(matchedWard ? String(matchedWard.code) : '');
+    this.dataService.currentWardName.set(matchedWard ? matchedWard.name : value);
   }
 
   onWardFocus() {
@@ -74,6 +81,7 @@ export class Header implements OnInit {
   selectWard(ward: Ward) {
     this.wardQuery.set(ward.name);
     this.dataService.currentWardCode.set(String(ward.code));
+    this.dataService.currentWardName.set(ward.name);
     this.wardDropdownOpen.set(false);
   }
 
@@ -92,6 +100,9 @@ export class Header implements OnInit {
 
   openAuthModal(mode: 'login' | 'register' = 'login') {
     this.authMode.set(mode);
+    this.authName.set(this.dataService.currentUser().name);
+    this.authEmail.set(this.dataService.currentUser().email);
+    this.authPassword.set('');
     this.authModalOpen.set(true);
   }
 
@@ -109,6 +120,17 @@ export class Header implements OnInit {
 
   closeMobileSearch() {
     this.mobileSearchOpen.set(false);
+  }
+
+  submitAuth() {
+    const name = this.authName().trim() || this.dataService.currentUser().name;
+    const email = this.authEmail().trim() || this.dataService.currentUser().email;
+    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      name
+    )}&background=f97316&color=fff&size=128`;
+
+    this.dataService.upsertCurrentUser({ name, email, avatar });
+    this.authModalOpen.set(false);
   }
 
   private loadWards(cityId: string) {

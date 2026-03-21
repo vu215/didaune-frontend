@@ -25,6 +25,11 @@ export class Aside implements OnInit {
 
   onCategoryClick(catId: string) {
     this.dataService.selectedCategoryId.set(catId);
-    this.router.navigate(['/list']);
+    this.router.navigate(['/discover']);
+  }
+
+  onAmenityClick(amenityId: string) {
+    this.dataService.selectedAmenityId.set(amenityId);
+    this.router.navigate(['/discover']);
   }
 }

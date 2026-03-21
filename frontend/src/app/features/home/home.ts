@@ -56,6 +56,7 @@ export class Home implements OnInit {
     this.dataService.currentCityId.set(event.target.value);
     this.dataService.currentDistrictId.set('all');
     this.dataService.currentWardCode.set('');
+    this.dataService.currentWardName.set('');
     this.wardQuery.set('');
     this.wardDropdownOpen.set(false);
     this.dataService.getWardsByCityId(event.target.value).subscribe(data => this.wards.set(data));
@@ -68,6 +69,7 @@ export class Home implements OnInit {
 
     if (!value) {
       this.dataService.currentWardCode.set('');
+      this.dataService.currentWardName.set('');
       return;
     }
 
@@ -76,6 +78,7 @@ export class Home implements OnInit {
     );
 
     this.dataService.currentWardCode.set(matchedWard ? String(matchedWard.code) : '');
+    this.dataService.currentWardName.set(matchedWard ? matchedWard.name : value);
   }
 
   onWardFocus() {
@@ -89,11 +92,18 @@ export class Home implements OnInit {
   selectWard(ward: Ward) {
     this.wardQuery.set(ward.name);
     this.dataService.currentWardCode.set(String(ward.code));
+    this.dataService.currentWardName.set(ward.name);
     this.wardDropdownOpen.set(false);
   }
 
   onCategoryClick(catId: string) {
     this.dataService.selectedCategoryId.set(catId);
-    this.router.navigate(['/list']);
+    this.router.navigate(['/discover']);
+  }
+
+  toggleFavorite(event: Event, slug: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dataService.toggleFavorite(slug);
   }
 }

@@ -11,11 +11,11 @@
         <i class="fa-solid fa-compass text-lg"></i>
         Khám phá
       </a>
-      <button type="button"
+      <a routerLink="/map" routerLinkActive="bg-primary_light text-primary"
         class="flex items-center gap-3 text-slate-500 hover:bg-slate-50 hover:text-slate-700 px-4 py-3 rounded-xl font-medium transition text-left">
         <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
         Bản đồ
-      </button>
+      </a>
       <a routerLink="/favorite" routerLinkActive="bg-primary_light text-primary"
         class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 font-medium transition group hover:bg-slate-50 hover:text-primary">
         <i class="fa-solid fa-heart text-lg"></i>
@@ -31,7 +31,7 @@
     <div class="mb-8">
       <h3 class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Bộ lọc nhanh</h3>
       <div class="flex flex-col gap-1">
-        <a *ngFor="let am of amenities()" (click)="onCategoryClick('all')"
+        <a *ngFor="let am of amenities()" (click)="onAmenityClick(am.id)"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 text-sm font-medium transition hover:bg-slate-50 hover:text-primary cursor-pointer">
           <i [class]="'fa-solid ' + am.icon"></i>
           {{ am.name }}
@@ -41,10 +41,10 @@
   </div>
 
   <div class="p-4 border-t border-slate-50">
-    <button
+    <a routerLink="/planner"
       class="w-full flex items-center justify-center gap-2 bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition shadow-lg">
       <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i>
       Lên lịch trình AI
-    </button>
+    </a>
   </div>
 </aside>

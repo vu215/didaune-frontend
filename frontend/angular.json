@@ -23,6 +23,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "cafe-in-ho-chi-minh-city-ho-chi-minh-city-vietnam.json",
+                "input": ".",
+                "output": "/"
               }
             ],
             "styles": [
