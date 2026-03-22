@@ -25,6 +25,14 @@
   </div>
 
   <div class="flex items-center gap-3 shrink-0">
+    <a
+      *ngIf="adminAuth.adminSession()"
+      routerLink="/admin"
+      class="hidden rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white lg:inline-flex"
+    >
+      Admin
+    </a>
+
     <button
       type="button"
       (click)="toggleMobileSearch()"
