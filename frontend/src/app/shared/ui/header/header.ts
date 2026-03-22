@@ -1,6 +1,7 @@
 import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { City, Ward } from '../../../core/models/app.models';
 import { DataService } from '../../../core/services/data.service';
 import { Router } from '@angular/router';
@@ -26,6 +27,9 @@ export class Header implements OnInit {
   authName = signal('');
   authEmail = signal(this.dataService.currentUser().email);
   authPassword = signal('');
+  authConfirmPassword = signal('');
+  authError = signal('');
+  authSubmitting = signal(false);
   filteredWards = computed(() => {
     const query = this.wardQuery().trim().toLowerCase();
 
@@ -33,22 +37,27 @@ export class Header implements OnInit {
       return this.wards();
     }
 
-    return this.wards().filter((ward) => ward.name.toLowerCase().includes(query));
+    return this.wards().filter((ward) =>
+      ward.name.toLowerCase().includes(query),
+    );
   });
 
   ngOnInit() {
-    this.dataService.getCities().subscribe(data => this.cities.set(data));
+    this.wardQuery.set(this.dataService.currentWardName());
+    this.dataService.getCities().subscribe((data) => this.cities.set(data));
     this.loadWards(this.dataService.currentCityId());
   }
 
   onCityChange(event: any) {
-    this.dataService.currentCityId.set(event.target.value);
+    const cityId = event.target.value;
+
+    this.dataService.currentCityId.set(cityId);
     this.dataService.currentDistrictId.set('all');
     this.dataService.currentWardCode.set('');
     this.dataService.currentWardName.set('');
     this.wardQuery.set('');
     this.wardDropdownOpen.set(false);
-    this.loadWards(event.target.value);
+    this.loadWards(cityId);
   }
 
   onWardInput(event: any) {
@@ -63,11 +72,13 @@ export class Header implements OnInit {
     }
 
     const matchedWard = this.wards().find(
-      (ward) => ward.name.toLowerCase() === value.toLowerCase()
+      (ward) => ward.name.toLowerCase() === value.toLowerCase(),
     );
 
-    this.dataService.currentWardCode.set(matchedWard ? String(matchedWard.code) : '');
-    this.dataService.currentWardName.set(matchedWard ? matchedWard.name : value);
+    this.dataService.currentWardCode.set(
+      matchedWard ? String(matchedWard.code) : '',
+    );
+    this.dataService.currentWardName.set(matchedWard ? matchedWard.name : '');
   }
 
   onWardFocus() {
@@ -75,7 +86,13 @@ export class Header implements OnInit {
   }
 
   onWardBlur() {
-    setTimeout(() => this.wardDropdownOpen.set(false), 150);
+    setTimeout(() => {
+      this.wardDropdownOpen.set(false);
+
+      if (!this.dataService.currentWardCode()) {
+        this.wardQuery.set(this.dataService.currentWardName());
+      }
+    }, 150);
   }
 
   selectWard(ward: Ward) {
@@ -94,15 +111,56 @@ export class Header implements OnInit {
     this.router.navigate(['/list']);
   }
 
+  useCurrentLocation() {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coordinates = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        this.dataService.setCurrentCoordinates(coordinates);
+        this.router.navigate(['/']);
+      },
+      () => {
+        this.dataService.setCurrentCoordinates(null);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000,
+      },
+    );
+  }
+
   clearSearch() {
     this.dataService.searchQuery.set('');
   }
 
+  handleAvatarClick() {
+    if (this.dataService.isAuthenticated()) {
+      this.router.navigate(['/profile']);
+      return;
+    }
+
+    this.openAuthModal('login');
+  }
+
   openAuthModal(mode: 'login' | 'register' = 'login') {
+    const currentUser = this.dataService.currentUser();
+    const isAuthenticated = this.dataService.isAuthenticated();
+
     this.authMode.set(mode);
-    this.authName.set(this.dataService.currentUser().name);
-    this.authEmail.set(this.dataService.currentUser().email);
+    this.authName.set(isAuthenticated ? currentUser.name : '');
+    this.authEmail.set(isAuthenticated ? currentUser.email : '');
     this.authPassword.set('');
+    this.authConfirmPassword.set('');
+    this.authError.set('');
+    this.authSubmitting.set(false);
     this.authModalOpen.set(true);
   }
 
@@ -112,6 +170,9 @@ export class Header implements OnInit {
 
   setAuthMode(mode: 'login' | 'register') {
     this.authMode.set(mode);
+    this.authPassword.set('');
+    this.authConfirmPassword.set('');
+    this.authError.set('');
   }
 
   toggleMobileSearch() {
@@ -123,17 +184,79 @@ export class Header implements OnInit {
   }
 
   submitAuth() {
-    const name = this.authName().trim() || this.dataService.currentUser().name;
-    const email = this.authEmail().trim() || this.dataService.currentUser().email;
-    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      name
-    )}&background=f97316&color=fff&size=128`;
+    const mode = this.authMode();
+    const name = this.authName().trim();
+    const email = this.authEmail().trim();
+    const password = this.authPassword().trim();
+    const confirmPassword = this.authConfirmPassword().trim();
 
-    this.dataService.upsertCurrentUser({ name, email, avatar });
-    this.authModalOpen.set(false);
+    if (mode === 'register' && !name) {
+      this.authError.set('Vui lòng nhập họ và tên.');
+      return;
+    }
+
+    if (!email) {
+      this.authError.set('Vui long nhap email.');
+      return;
+    }
+
+    if (!password) {
+      this.authError.set('Vui long nhap mat khau.');
+      return;
+    }
+
+    if (mode === 'register' && password !== confirmPassword) {
+      this.authError.set('Mat khau xac nhan khong khop.');
+      return;
+    }
+
+    this.authError.set('');
+    this.authSubmitting.set(true);
+
+    const request$ =
+      mode === 'login'
+        ? this.dataService.login(email, password)
+        : this.dataService.register(name, email, password);
+
+    request$.pipe(finalize(() => this.authSubmitting.set(false))).subscribe({
+      next: () => {
+        this.authModalOpen.set(false);
+      },
+      error: (error) => {
+        const apiMessage =
+          error?.error?.message ||
+          (typeof error?.error?.errors === 'object'
+            ? Object.values(error.error.errors).flat()[0]
+            : null);
+
+        this.authError.set(
+          typeof apiMessage === 'string'
+            ? apiMessage
+            : mode === 'login'
+              ? 'Dang nhap that bai. Vui long kiem tra lai thong tin.'
+              : 'Dang ky that bai. Vui long thu lai.',
+        );
+      },
+    });
   }
 
-  private loadWards(cityId: string) {
-    this.dataService.getWardsByCityId(cityId).subscribe((data) => this.wards.set(data));
+  private loadWards(cityId: string, preferredWardName = '') {
+    this.dataService.getWardsByCityId(cityId).subscribe((data) => {
+      this.wards.set(data);
+
+      if (preferredWardName) {
+        this.wardQuery.set(preferredWardName);
+        return;
+      }
+
+      const currentWardCode = this.dataService.currentWardCode();
+      const selectedWard = data.find(
+        (ward) => String(ward.code) === currentWardCode,
+      );
+
+      this.wardQuery.set(
+        selectedWard?.name ?? this.dataService.currentWardName(),
+      );
+    });
   }
 }

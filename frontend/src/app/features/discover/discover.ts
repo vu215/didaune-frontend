@@ -25,6 +25,7 @@ export class Discover {
     const categoryId = this.dataService.selectedCategoryId();
     const areaId = this.dataService.currentDistrictId();
     const amenityId = this.dataService.selectedAmenityId();
+    const wardCode = this.dataService.currentWardCode().trim();
     const wardName = this.dataService.currentWardName().trim().toLowerCase();
     const sorted = this.sortPlaces(
       this.places().filter((place) => {
@@ -32,7 +33,7 @@ export class Discover {
         const byArea = areaId === 'all' || place.area_id === areaId;
         const byCategory = categoryId === 'all' || place.categories.includes(categoryId);
         const byAmenity = amenityId === 'all' || place.amenities.includes(amenityId);
-        const byWard = !wardName || place.ward_name.toLowerCase().includes(wardName);
+        const byWard = !wardName || !!wardCode || place.ward_name.toLowerCase().includes(wardName);
         return byCity && byArea && byCategory && byAmenity && byWard;
       })
     );
