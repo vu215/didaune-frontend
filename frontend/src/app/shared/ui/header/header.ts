@@ -2,6 +2,7 @@ import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { City, Ward } from '../../../core/models/app.models';
+import { AdminAuthService } from '../../../core/services/admin/admin-auth.service';
 import { DataService } from '../../../core/services/data.service';
 import { Router } from '@angular/router';
 
@@ -14,6 +15,7 @@ import { Router } from '@angular/router';
 })
 export class Header implements OnInit {
   public dataService = inject(DataService);
+  public adminAuth = inject(AdminAuthService);
   private router = inject(Router);
 
   cities = signal<City[]>([]);
