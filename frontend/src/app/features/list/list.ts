@@ -27,6 +27,7 @@ export class List {
     const areaId = this.dataService.currentDistrictId();
     const categoryId = this.dataService.selectedCategoryId();
     const amenityId = this.dataService.selectedAmenityId();
+    const wardCode = this.dataService.currentWardCode().trim();
     const wardName = this.dataService.currentWardName().trim().toLowerCase();
 
     const results = this.places().filter((place) => {
@@ -34,7 +35,8 @@ export class List {
       const matchArea = areaId === 'all' || place.area_id === areaId;
       const matchCategory = categoryId === 'all' || place.categories.includes(categoryId);
       const matchAmenity = amenityId === 'all' || place.amenities.includes(amenityId);
-      const matchWard = !wardName || place.ward_name.toLowerCase().includes(wardName);
+      const matchWard =
+        !wardName || !!wardCode || place.ward_name.toLowerCase().includes(wardName);
       const searchable = [
         place.name,
         place.address,

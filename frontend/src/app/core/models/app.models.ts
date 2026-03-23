@@ -109,6 +109,7 @@ export interface Place {
   reservations_link?: string | null;
   latitude?: number;
   longitude?: number;
+  distance_km?: number | null;
   hours: PlaceHour[];
   highlights: string[];
   owner_name?: string | null;
@@ -118,6 +119,38 @@ export interface Place {
   can_claim: boolean;
   is_temporarily_closed: boolean;
   is_permanently_closed: boolean;
+}
+
+export interface HomeHero {
+  province_code: number | null;
+  ward_code: number | null;
+  total_places: number;
+  district_count: number;
+  ward_count: number;
+}
+
+export interface HomeCategorySummary {
+  id?: string;
+  name: string;
+  icon?: string;
+  color?: string;
+  count: number;
+}
+
+export interface HomeAreaSummary {
+  name: string;
+  count: number;
+}
+
+export interface HomePageData {
+  hero: HomeHero;
+  featured_places: Place[];
+  trending_places: Place[];
+  new_places: Place[];
+  nearby_places: Place[];
+  demand_categories: HomeCategorySummary[];
+  top_categories: HomeCategorySummary[];
+  top_areas: HomeAreaSummary[];
 }
 
 export interface User {

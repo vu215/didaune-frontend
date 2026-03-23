@@ -1,48 +1,66 @@
-<aside class="w-64 bg-white border-r border-slate-100 hidden lg:flex flex-col h-screen fixed">
-  <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
-    <nav class="flex flex-col gap-1 mb-8">
-      <a routerLink="/" routerLinkActive="bg-primary_light text-primary" [routerLinkActiveOptions]="{exact: true}"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 font-medium transition group hover:bg-slate-50 hover:text-primary">
+<aside
+  class="fixed hidden h-screen w-64 flex-col border-r border-slate-100 bg-white lg:flex">
+  <div class="hide-scrollbar flex-1 overflow-y-auto p-6">
+    <nav class="mb-8 flex flex-col gap-1">
+      <a
+        routerLink="/"
+        routerLinkActive="bg-primary_light text-primary"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-primary">
         <i class="fa-solid fa-house text-lg"></i>
         Trang chủ
       </a>
-      <a (click)="onCategoryClick('all')"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 font-medium transition group hover:bg-slate-50 hover:text-primary cursor-pointer">
+      <a
+        (click)="onCategoryClick('all')"
+        class="group flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-primary">
         <i class="fa-solid fa-compass text-lg"></i>
         Khám phá
       </a>
-      <a routerLink="/map" routerLinkActive="bg-primary_light text-primary"
-        class="flex items-center gap-3 text-slate-500 hover:bg-slate-50 hover:text-slate-700 px-4 py-3 rounded-xl font-medium transition text-left">
+      <a
+        routerLink="/planner"
+        routerLinkActive="bg-primary_light text-primary"
+        class="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-primary">
+        <i class="fa-solid fa-location-dot text-lg"></i>
+        Tạo lịch trình
+      </a>
+      <a
+        routerLink="/map"
+        routerLinkActive="bg-primary_light text-primary"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-left font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-700">
         <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
         Bản đồ
       </a>
-      <a routerLink="/favorite" routerLinkActive="bg-primary_light text-primary"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 font-medium transition group hover:bg-slate-50 hover:text-primary">
+      <a
+        routerLink="/favorite"
+        routerLinkActive="bg-primary_light text-primary"
+        class="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-primary">
         <i class="fa-solid fa-heart text-lg"></i>
         Yêu thích
-      </a>
-      <a routerLink="/profile" routerLinkActive="bg-primary_light text-primary"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 font-medium transition group hover:bg-slate-50 hover:text-primary">
-        <i class="fa-solid fa-user text-lg"></i>
-        Cá nhân
       </a>
     </nav>
 
     <div class="mb-8">
-      <h3 class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Bộ lọc nhanh</h3>
+      <h3
+        class="mb-4 px-4 text-[12px] font-bold uppercase tracking-widest text-slate-400">
+        Danh mục chính
+      </h3>
       <div class="flex flex-col gap-1">
-        <a *ngFor="let am of amenities()" (click)="onAmenityClick(am.id)"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 text-sm font-medium transition hover:bg-slate-50 hover:text-primary cursor-pointer">
-          <i [class]="'fa-solid ' + am.icon"></i>
-          {{ am.name }}
-        </a>
+        <button
+          *ngFor="let category of primaryCategories"
+          type="button"
+          (click)="onPrimaryCategoryClick(category)"
+          class="group flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-primary">
+          <i [class]="'fa-solid ' + category.icon"></i>
+          {{ category.label }}
+        </button>
       </div>
     </div>
   </div>
 
-  <div class="p-4 border-t border-slate-50">
-    <a routerLink="/planner"
-      class="w-full flex items-center justify-center gap-2 bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition shadow-lg">
+  <div class="border-t border-slate-50 p-4">
+    <a
+      routerLink="/planner"
+      class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 py-3.5 font-bold text-white shadow-lg transition hover:bg-slate-800">
       <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i>
       Lên lịch trình AI
     </a>
