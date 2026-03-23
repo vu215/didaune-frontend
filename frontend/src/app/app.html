@@ -1,17 +1,1 @@
-<header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-[90] h-20">
-  <app-header />
-</header>
-<div class="pt-20 flex min-h-screen">
-  <aside
-    class="hidden md:flex flex-col w-64 fixed top-20 bottom-0 left-0 bg-white border-r border-slate-100 z-40 overflow-y-auto hide-scrollbar"
-  >
-    <app-aside></app-aside>
-  </aside>
-
-  <main class="flex-1 md:pl-64 w-full">
-    <router-outlet />
-  </main>
-</div>
-<app-tabbar class=""></app-tabbar>
-
-
+<router-outlet />

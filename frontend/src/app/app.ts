@@ -7,9 +7,9 @@ import { DataService } from './core/services/data.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Aside, Tabbar],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App implements OnInit {
   private dataService = inject(DataService);

@@ -1,0 +1,15 @@
+<header class="fixed left-0 right-0 top-0 z-[90] h-20 bg-white shadow-sm">
+  <app-header />
+</header>
+<div class="flex min-h-screen pt-20">
+  <aside
+    class="fixed bottom-0 left-0 top-20 z-40 hidden w-64 overflow-y-auto border-r border-slate-100 bg-white md:flex md:flex-col"
+  >
+    <app-aside></app-aside>
+  </aside>
+
+  <main class="w-full flex-1 md:pl-64">
+    <router-outlet />
+  </main>
+</div>
+<app-tabbar />
