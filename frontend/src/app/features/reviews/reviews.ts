@@ -21,6 +21,8 @@ export class Reviews {
   rating = signal(5);
   comment = signal('');
   selectedTags = signal<string[]>(['Wifi tot']);
+  errorMessage = signal('');
+  submitting = signal(false);
 
   quickTags = [
     'Wifi tot',
@@ -64,13 +66,25 @@ export class Reviews {
 
     const content = [this.comment().trim(), ...this.selectedTags()].filter(Boolean).join(' | ');
 
-    this.dataService.submitReview({
-      place_slug: place.slug,
-      rating: this.rating(),
-      comment: content || 'Trai nghiem tot, minh muon quay lai.',
-      images: [],
-    });
+    this.submitting.set(true);
+    this.errorMessage.set('');
 
-    this.router.navigate(['/detail', place.slug]);
+    this.dataService
+      .submitReview({
+        place_slug: place.slug,
+        rating: this.rating(),
+        comment: content || 'Trai nghiem tot, minh muon quay lai.',
+        images: [],
+      })
+      .subscribe({
+        next: () => {
+          this.submitting.set(false);
+          this.router.navigate(['/detail', place.slug]);
+        },
+        error: (error) => {
+          this.submitting.set(false);
+          this.errorMessage.set(error?.message || 'Khong the gui danh gia luc nay.');
+        },
+      });
   }
 }

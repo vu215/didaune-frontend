@@ -1,39 +1,87 @@
-<section class="mb-8">
-  <h1 class="mt-2 text-3xl font-black text-slate-950">Quản lý đối tác và claim requests</h1>
-  <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-    Theo dõi owner claims, xác minh chủ quản và đưa listing vào workflow partner chính thức.
-  </p>
-</section>
-
-<section class="grid gap-5 xl:grid-cols-2">
-  <article *ngFor="let row of rows()" class="rounded-[30px] border border-white/70 bg-white p-5 shadow-sm">
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <h2 class="text-xl font-black text-slate-950">{{ row.placeName }}</h2>
-        <p class="mt-1 text-sm text-slate-500">{{ row.ownerName }} · {{ row.district }}</p>
+<div class="mb-14">
+  <header class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6 mb-10">
+    <div>
+      <h1 class="text-3xl font-black text-slate-800 tracking-tight">Quản lý Đối tác</h1>
+      <p class="text-sm text-slate-500 font-medium mt-2">Danh sách các quán cafe, địa điểm hẹn hò trên hệ thống DiDauNe.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <div class="relative group">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors group-focus-within:text-orange-500"></i>
+        <input type="text" placeholder="Tìm tên quán, khu vực..."
+          class="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none w-full sm:w-64 transition-all shadow-sm">
       </div>
-      <span class="rounded-full px-3 py-1 text-xs font-bold"
-        [class]="row.status === 'active' || row.status === 'verified' ? 'bg-emerald-50 text-emerald-600' : row.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-slate-200 text-slate-600'">
-        {{ row.status }}
-      </span>
-    </div>
-    <p class="mt-4 text-sm leading-6 text-slate-500">{{ row.source }}</p>
-    <div class="mt-5 flex flex-wrap gap-3">
-      <button type="button" (click)="setStatus(row.id, 'verified')"
-        [disabled]="!adminAuth.hasCapability('partners.manage')"
-        class="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
-        Xác minh
-      </button>
-      <button type="button" (click)="setStatus(row.id, 'pending')"
-        [disabled]="!adminAuth.hasCapability('partners.manage')"
-        class="rounded-2xl bg-orange-100 px-4 py-3 text-sm font-bold text-orange-700 disabled:cursor-not-allowed disabled:opacity-50">
-        Yêu cầu thêm thông tin
-      </button>
-      <button type="button" (click)="setStatus(row.id, 'rejected')"
-        [disabled]="!adminAuth.hasCapability('partners.manage')"
-        class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-        Từ chối
+      <button [routerLink]="['/admin/imports']"
+        class="bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-500/20 flex items-center justify-center gap-2">
+        <i class="fas fa-plus text-[8px]"></i> Thêm mới
       </button>
     </div>
-  </article>
-</section>
+  </header>
+
+  <!-- Filter Pills -->
+  <div class="flex gap-2 mb-10 overflow-x-auto pb-4 scrollbar-hide">
+    <button class="px-6 py-2.5 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all">Tất cả</button>
+    <button class="px-6 py-2.5 bg-white text-slate-500 border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-200 hover:bg-slate-50 transition-all shadow-sm">
+      Đang chờ duyệt ({{ rows().length }})
+    </button>
+    <button class="px-6 py-2.5 bg-white text-slate-500 border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-200 hover:bg-slate-50 transition-all shadow-sm">Cafe</button>
+    <button class="px-6 py-2.5 bg-white text-slate-500 border border-slate-200 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-200 hover:bg-slate-50 transition-all shadow-sm">Hẹn hò</button>
+  </div>
+
+  <!-- Partners Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <article *ngFor="let row of rows()"
+      class="bg-white rounded-2xl border border-slate-100 overflow-hidden group hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 relative">
+      <div class="relative h-44 overflow-hidden">
+        <img [src]="'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800'"
+          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+        
+        <!-- Status Badge -->
+        <span [class]="'absolute top-4 left-4 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest backdrop-blur-md shadow-lg ' + 
+          (row.status === 'active' || row.status === 'verified' ? 'bg-emerald-500/80 shadow-emerald-500/10' : 'bg-orange-500/80 shadow-orange-500/10')">
+          {{ row.status }}
+        </span>
+        
+        <!-- Actions Button -->
+        <div class="absolute top-4 right-4 group/menu">
+          <button class="w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all border border-white/20 hover:bg-orange-500/80">
+            <i class="fas fa-ellipsis-v text-xs"></i>
+          </button>
+          <!-- Context Menu -->
+          <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-20">
+            <button (click)="setStatus(row.id, 'verified')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-slate-700 hover:bg-slate-50 hover:text-orange-500 transition-colors uppercase tracking-widest">Xác minh</button>
+            <div class="h-px bg-slate-50 my-1"></div>
+            <button (click)="setStatus(row.id, 'rejected')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-rose-500 hover:bg-rose-50 transition-colors uppercase tracking-widest">Từ chối</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+          <h3 class="font-black text-slate-900 text-sm tracking-tight leading-tight group-hover:text-orange-500 transition-colors">{{ row.placeName }}</h3>
+          <span class="text-orange-500 font-black text-[10px] flex items-center gap-1">
+            <i class="fas fa-star text-[8px]"></i>4.8
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wide mb-6 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-[10px]"></i> {{ row.district }}, TP.HCM
+        </p>
+        
+        <div class="flex justify-between items-center border-t border-slate-50 pt-6">
+          <div class="flex -space-x-3">
+            <img src="https://ui-avatars.com/api/?name=U1&background=f1f5f9&color=94a3b8"
+              class="w-7 h-7 rounded-lg border-2 border-white object-cover">
+            <img src="https://ui-avatars.com/api/?name=U2&background=f1f5f9&color=94a3b8"
+              class="w-7 h-7 rounded-lg border-2 border-white object-cover">
+            <div class="w-7 h-7 rounded-lg bg-slate-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-slate-400">
+              +
+            </div>
+          </div>
+          <button 
+            class="text-[10px] font-black text-slate-400 hover:text-orange-500 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-not-allowed" title="Tính năng đang được phát triển">
+            Chi tiết <i class="fas fa-arrow-right text-[8px]"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>

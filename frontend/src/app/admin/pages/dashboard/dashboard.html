@@ -1,142 +1,170 @@
-<section
-  class="mb-8 rounded-[34px] bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_50%,#f97316_100%)] px-6 py-8 text-white shadow-xl md:px-8">
-  <div class="max-w-3xl">
-    <div class="text-xs font-bold uppercase tracking-[0.22em] text-orange-100">Admin Overview</div>
-    <h1 class="mt-3 text-3xl font-black leading-tight md:text-5xl">
-      Vận hành toàn bộ hệ sinh thái discovery app từ một control center
-    </h1>
-    <p class="mt-4 text-sm leading-6 text-slate-100 md:text-base">
-      Dashboard này gom theo dõi địa điểm, review, partner, import và data quality để team có thể
-      phân bổ công việc nhanh và giảm thao tác tay.
-    </p>
-  </div>
-</section>
+<div class="space-y-10">
+  
+  <!-- Top KPI Cards -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngFor="let kpi of kpis().slice(0, 4); let i = index" 
+      class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+      <div [class]="'w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors ' + 
+        (i === 0 ? 'bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white' : 
+         i === 1 ? 'bg-orange-50 text-orange-500 group-hover:bg-orange-500 group-hover:text-white' :
+         i === 2 ? 'bg-purple-50 text-purple-500 group-hover:bg-purple-500 group-hover:text-white' :
+         'bg-pink-50 text-pink-500 group-hover:bg-pink-500 group-hover:text-white')">
+        <i [class]="'fas ' + (i === 0 ? 'fa-map-marker-alt' : i === 1 ? 'fa-users' : i === 2 ? 'fa-brain' : 'fa-comment-dots')"></i>
+      </div>
+      <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">{{ kpi.label }}</p>
+      <h3 class="text-2xl font-black mt-1 text-slate-900">{{ kpi.value }}</h3>
+      <div class="mt-2">
+        <span *ngIf="kpi.delta" [class]="'text-[10px] font-bold italic ' + (kpi.delta.startsWith('+') ? 'text-emerald-500' : 'text-orange-500')">
+          {{ kpi.delta }} {{ i === 1 ? 'đang chờ duyệt' : 'tháng này' }}
+        </span>
+      </div>
+    </div>
+  </section>
 
-<section class="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  <article *ngFor="let kpi of kpis()"
-    class="overflow-hidden rounded-[28px] border border-white/70 bg-white p-5 shadow-sm">
-    <div [class]="'mb-4 h-2 rounded-full bg-gradient-to-r ' + kpi.tone"></div>
-    <div class="text-sm font-semibold text-slate-500">{{ kpi.label }}</div>
-    <div class="mt-3 text-4xl font-black text-slate-950">{{ kpi.value }}</div>
-    <div class="mt-2 text-sm font-medium text-slate-500">{{ kpi.delta }}</div>
-  </article>
-</section>
-
-<section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-  <div class="space-y-6">
-    <article class="rounded-[30px] border border-white/70 bg-white p-6 shadow-sm">
-      <div class="mb-5 flex items-end justify-between">
+  <!-- Middle Section: Chart & AI Assistant -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- User Traffic & Booking Bar Chart -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+      <div class="flex justify-between items-center mb-10">
         <div>
-          <h2 class="text-2xl font-black text-slate-950">Địa điểm cần ưu tiên</h2>
-          <p class="mt-1 text-sm text-slate-500">Những listing cần bổ sung dữ liệu hoặc edit nhanh.</p>
+          <h2 class="font-black text-slate-800 tracking-tight">Lưu lượng người dùng & Booking</h2>
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Sự tăng trưởng thực tế (Active Users)</p>
         </div>
-        <a routerLink="/admin/locations" class="text-sm font-semibold text-primary">Xem tất cả</a>
+        <div class="flex gap-2">
+          <span class="px-3 py-1.5 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full cursor-pointer hover:bg-orange-100 transition">7 NGÀY</span>
+          <span class="px-3 py-1.5 bg-orange-500 text-white text-[10px] font-black rounded-full shadow-lg shadow-orange-500/20">30 NGÀY</span>
+        </div>
+      </div>
+      
+      <div class="relative h-48 w-full flex items-end gap-3 px-2">
+        <div *ngFor="let h of charts().traffic; let last = last" 
+          [class]="'flex-1 rounded-t-xl transition-all cursor-pointer group relative ' + (last ? 'bg-orange-500 shadow-lg shadow-orange-500/10' : 'bg-slate-100 hover:bg-orange-400')"
+          [style.height.%]="h">
+          <span class="absolute -top-10 left-1/2 -translate-x-1/2 text-[10px] font-black bg-slate-900 text-white px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            {{ h * 10 }}
+          </span>
+        </div>
+      </div>
+      <div class="flex justify-between mt-6 text-[10px] text-slate-400 uppercase tracking-[0.2em] font-black px-2">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+      </div>
+    </div>
+
+    <!-- Gradient AI Assistant Card -->
+    <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-8 rounded-[24px] text-white shadow-xl shadow-orange-200 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/20">
+            <i class="fas fa-robot text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="font-black italic text-lg tracking-tight leading-none">AI Assistant</h2>
+            <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest mt-2">v.2.0 Stable Build</p>
+          </div>
+        </div>
+        
+        <div class="space-y-6">
+          <div class="p-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <p class="text-[9px] text-orange-100 uppercase font-black tracking-widest mb-1">Gợi ý thành công</p>
+            <p class="text-2xl font-black">92.4%</p>
+          </div>
+          <div class="p-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer">
+            <p class="text-[9px] text-orange-100 uppercase font-black tracking-widest mb-1">Top Vibe tuần này</p>
+            <p class="text-lg font-black tracking-tight">#Cyberpunk_Cafe</p>
+          </div>
+        </div>
       </div>
 
+      <button
+        class="w-full py-4 bg-slate-900 text-white text-[11px] font-black rounded-2xl mt-8 hover:bg-slate-800 transition uppercase tracking-[0.2em] shadow-2xl">
+        Huấn luyện AI Core
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom Section: Requests & Vibe Trends -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Partner Requests -->
+    <div class="lg:col-span-2 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="font-black text-slate-800 tracking-tight text-xl">Yêu cầu đối tác gần đây</h2>
+        <a routerLink="/admin/partners" class="text-orange-500 text-[11px] font-black uppercase tracking-widest hover:underline">Xem tất cả</a>
+      </div>
+      
       <div class="space-y-4">
-        <a *ngFor="let row of locations()" [routerLink]="['/admin/locations', row.place.slug]"
-          class="flex gap-4 rounded-[24px] bg-slate-50 p-4 transition hover:bg-orange-50">
-          <img [src]="row.place.image" [alt]="row.place.name" class="h-20 w-20 rounded-2xl object-cover" />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h3 class="text-lg font-bold text-slate-950">{{ row.place.name }}</h3>
-                <p class="mt-1 text-sm text-slate-500">{{ row.place.area_name }} · {{ row.place.district_name }}</p>
+        <div *ngFor="let partner of partners().slice(0, 2)"
+          class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl hover:bg-slate-100 transition cursor-pointer border border-transparent hover:border-slate-200">
+          <div class="flex items-center gap-5">
+            <div class="w-14 h-14 bg-slate-200 rounded-2xl overflow-hidden font-black flex items-center justify-center text-slate-400 italic text-[10px] uppercase tracking-tighter">
+              {{ partner.placeName.split(' ')[1] || 'Store' }}
+            </div>
+            <div>
+              <p class="text-sm font-black text-slate-900">{{ partner.placeName }}</p>
+              <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wide">{{ partner.district }} • Đăng ký 2h trước</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+            <button (click)="updatePartnerStatus(partner.id, 'active')" 
+              class="p-2.5 px-5 text-[10px] font-black bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition">Duyệt</button>
+            <button (click)="updatePartnerStatus(partner.id, 'rejected')"
+              class="p-2.5 px-5 text-[10px] font-black bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Bỏ qua</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Trends Tracker (Hot Vibes) -->
+    <div class="bg-slate-900 p-8 rounded-2xl text-white shadow-2xl">
+      <h2 class="font-black mb-10 text-orange-400 tracking-tight text-xl">Xu hướng AI (Hot Vibes)</h2>
+      <div class="space-y-10">
+        <div *ngFor="let vibe of charts().vibes; let i = index">
+          <div class="flex justify-between text-[11px] font-black uppercase tracking-widest mb-3">
+            <span class="text-slate-200">#{{ vibe.name }}</span>
+            <span [class]="i === 0 ? 'text-orange-500' : 'text-blue-400'">{{ vibe.value }}%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div [class]="(i === 0 ? 'bg-orange-500' : 'bg-blue-400') + ' h-full transition-all duration-1000'" [style.width.%]="vibe.value"></div>
+          </div>
+        </div>
+        
+        <div class="mt-12 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50 italic text-[11px] text-slate-400 text-center leading-relaxed">
+          "AI đang gợi ý nhiều hơn cho các địa điểm có không gian mở vào cuối tuần này."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Reviews Section -->
+  <div>
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="font-black text-slate-800 text-xl tracking-tight flex items-center gap-3">
+        Đánh giá mới nhất 
+        <span class="bg-orange-500 text-white text-[10px] px-3 py-1 rounded-full font-black shadow-lg shadow-orange-500/20">{{ latestReviews().length }}</span>
+      </h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <article *ngFor="let row of latestReviews()" 
+        class="bg-white p-6 rounded-2xl border border-slate-100 hover:border-orange-200 shadow-sm transition-all group cursor-pointer hover:shadow-xl hover:shadow-orange-500/5">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-4">
+            <img [src]="row.review.avatar"
+              class="w-10 h-10 rounded-xl object-cover ring-2 ring-transparent group-hover:ring-orange-500/20 transition-all">
+            <div>
+              <h4 class="text-xs font-black text-slate-900">{{ row.review.user_name }}</h4>
+              <div class="flex text-[8px] text-orange-400 mt-1">
+                <i class="fas fa-star" *ngFor="let s of [1,2,3,4,5]; let i = index" [class.text-slate-100]="i + 1 > row.review.rating"></i>
               </div>
-              <span class="rounded-full px-3 py-1 text-xs font-bold"
-                [class]="row.status === 'published' ? 'bg-emerald-50 text-emerald-600' : row.status === 'needs_review' ? 'bg-amber-50 text-amber-600' : 'bg-slate-200 text-slate-600'">
-                {{ row.status }}
-              </span>
-            </div>
-            <div class="mt-3 flex items-center justify-between">
-              <span class="text-sm font-medium text-slate-500">Completeness</span>
-              <span class="text-sm font-bold text-slate-900">{{ row.completeness }}%</span>
-            </div>
-            <div class="mt-2 h-2 rounded-full bg-slate-200">
-              <div class="h-full rounded-full bg-gradient-to-r from-orange-500 to-rose-500"
-                [style.width.%]="row.completeness"></div>
             </div>
           </div>
-        </a>
-      </div>
-    </article>
-
-    <article class="rounded-[30px] border border-white/70 bg-white p-6 shadow-sm">
-      <div class="mb-5 flex items-end justify-between">
-        <div>
-          <h2 class="text-2xl font-black text-slate-950">Nhập dữ liệu</h2>
-          <p class="mt-1 text-sm text-slate-500">Theo dõi các lần nạp dữ liệu và batch review.</p>
+          <span class="text-[9px] font-bold text-slate-400 italic">{{ row.review.created_at | date:'dd/MM' }}</span>
         </div>
-        <a routerLink="/admin/imports" class="text-sm font-semibold text-primary">Mở nhập dữ liệu</a>
-      </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let batch of imports()" class="rounded-[24px] bg-slate-50 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h3 class="font-bold text-slate-950">{{ batch.source }}</h3>
-              <p class="mt-1 text-sm text-slate-500">{{ batch.records }} records · {{ batch.importedAt |
-                date:'dd/MM/yyyy HH:mm' }}</p>
-            </div>
-            <span class="rounded-full px-3 py-1 text-xs font-bold"
-              [class]="batch.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : batch.status === 'review' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'">
-              {{ batch.status }}
-            </span>
-          </div>
+        <p class="text-xs text-slate-500 leading-relaxed mb-6 line-clamp-3 italic">"{{ row.review.comment }}"</p>
+        <div class="flex gap-2">
+          <button (click)="adminData.updateReviewStatus(row.review.id, 'flagged')" class="flex-1 py-3 bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400 rounded-xl hover:bg-orange-50 hover:text-orange-500 transition-all">Ẩn</button>
+          <button (click)="adminData.updateReviewStatus(row.review.id, 'approved')" class="flex-1 py-3 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-500/20">Phê duyệt</button>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
   </div>
-
-  <div class="space-y-6">
-    <article class="rounded-[30px] border border-white/70 bg-white p-6 shadow-sm">
-      <div class="mb-5 flex items-end justify-between">
-        <div>
-          <h2 class="text-2xl font-black text-slate-950">Đối tác</h2>
-          <p class="mt-1 text-sm text-slate-500">Yêu cầu claim và owner management.</p>
-        </div>
-        <a routerLink="/admin/partners" class="text-sm font-semibold text-primary">Quản lý</a>
-      </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let partner of partners()" class="rounded-[24px] bg-slate-50 p-4">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h3 class="font-bold text-slate-950">{{ partner.placeName }}</h3>
-              <p class="mt-1 text-sm text-slate-500">{{ partner.ownerName }} · {{ partner.district }}</p>
-            </div>
-            <span class="rounded-full px-3 py-1 text-xs font-bold"
-              [class]="partner.status === 'active' || partner.status === 'verified' ? 'bg-emerald-50 text-emerald-600' : partner.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-slate-200 text-slate-600'">
-              {{ partner.status }}
-            </span>
-          </div>
-          <p class="mt-3 text-sm text-slate-500">{{ partner.source }}</p>
-        </div>
-      </div>
-    </article>
-
-    <article class="rounded-[30px] border border-white/70 bg-white p-6 shadow-sm">
-      <div class="mb-5 flex items-end justify-between">
-        <div>
-          <h2 class="text-2xl font-black text-slate-950">Báo cáo chất lượng</h2>
-          <p class="mt-1 text-sm text-slate-500">Báo cáo để team data xử lý theo mức độ.</p>
-        </div>
-        <a routerLink="/admin/reports" class="text-sm font-semibold text-primary">Báo cáo</a>
-      </div>
-
-      <div class="space-y-4">
-        <div *ngFor="let report of reports()" class="rounded-[24px] bg-slate-50 p-4">
-          <div class="flex items-center justify-between gap-3">
-            <h3 class="font-bold text-slate-950">{{ report.title }}</h3>
-            <span class="rounded-full px-3 py-1 text-xs font-bold"
-              [class]="report.severity === 'high' ? 'bg-rose-50 text-rose-600' : report.severity === 'medium' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'">
-              {{ report.severity }}
-            </span>
-          </div>
-          <div class="mt-3 text-3xl font-black text-slate-950">{{ report.count }}</div>
-          <p class="mt-2 text-sm leading-6 text-slate-500">{{ report.description }}</p>
-        </div>
-      </div>
-    </article>
-  </div>
-</section>
+</div>

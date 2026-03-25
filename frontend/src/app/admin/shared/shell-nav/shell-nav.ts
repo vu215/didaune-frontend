@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AdminAuthService, AdminCapability } from '../../../core/services/admin/admin-auth.service';
 
 @Component({
@@ -11,6 +11,7 @@ import { AdminAuthService, AdminCapability } from '../../../core/services/admin/
 })
 export class ShellNav {
   adminAuth = inject(AdminAuthService);
+  private router = inject(Router);
 
   sections = [
     {
@@ -27,10 +28,21 @@ export class ShellNav {
       items: [
         { label: 'Đối tác', icon: 'fa-handshake', link: '/admin/partners', capability: 'partners.manage' as AdminCapability },
         { label: 'Nhập liệu', icon: 'fa-file-import', link: '/admin/imports', capability: 'imports.manage' as AdminCapability },
-        { label: 'Phân loại', icon: 'fa-tags', link: '/admin/taxonomy', capability: 'taxonomy.manage' as AdminCapability },
-        { label: 'Bộ sưu tập', icon: 'fa-layer-group', link: '/admin/collections', capability: 'collections.manage' as AdminCapability },
         { label: 'Báo cáo', icon: 'fa-triangle-exclamation', link: '/admin/reports', capability: 'reports.view' as AdminCapability },
+        // { label: 'AI Insights', icon: 'fa-wand-magic-sparkles', link: '/admin/insights', capability: 'dashboard.view' as AdminCapability },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
+        { label: 'Taxonomy', icon: 'fa-tags', link: '/admin/taxonomy', capability: 'taxonomy.manage' as AdminCapability },
+        { label: 'Collections', icon: 'fa-layer-group', link: '/admin/collections', capability: 'collections.manage' as AdminCapability },
       ],
     },
   ];
+
+  logout() {
+    this.adminAuth.logout();
+    this.router.navigate(['/admin/login']);
+  }
 }

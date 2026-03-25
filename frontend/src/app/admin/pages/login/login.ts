@@ -24,15 +24,20 @@ export class AdminLogin {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const result = this.adminAuth.login(this.email(), this.password());
-
-    if (!result.ok) {
-      this.loading.set(false);
-      this.errorMessage.set(result.message);
-      return;
-    }
-
-    const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo') || '/admin';
-    this.router.navigateByUrl(redirectTo);
+    this.adminAuth.login(this.email(), this.password()).subscribe({
+      next: () => {
+        this.loading.set(false);
+        const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo') || '/admin';
+        this.router.navigateByUrl(redirectTo);
+      },
+      error: (error) => {
+        this.loading.set(false);
+        this.errorMessage.set(
+          error?.error?.message ||
+            error?.message ||
+            'Khong the dang nhap admin luc nay.'
+        );
+      },
+    });
   }
 }

@@ -1,10 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
   Observable,
   catchError,
   combineLatest,
+  throwError,
   map,
   of,
   shareReplay,
@@ -51,6 +52,12 @@ interface BackendUser {
   bio?: string | null;
   membership_tier?: string | null;
   points?: number | null;
+  role?: string | null;
+}
+
+interface BackendAuthPayload {
+  user: BackendUser;
+  token: string;
 }
 
 const DEFAULT_USER: User = {
@@ -79,6 +86,7 @@ export class DataService {
   private favoritesStorageKey = 'didaune_favorites';
   private reviewsStorageKey = 'didaune_reviews';
   private userStorageKey = 'didaune_user';
+  private authTokenStorageKey = 'didaune_auth_token';
   private coordinatesStorageKey = 'didaune_coordinates';
 
   currentCityId = signal('hcm');
@@ -94,10 +102,9 @@ export class DataService {
   );
 
   favoriteSlugs = signal<string[]>(this.readStorage<string[]>(this.favoritesStorageKey, []));
-  internalReviews = signal<PlaceReview[]>(
-    this.readStorage<PlaceReview[]>(this.reviewsStorageKey, [])
-  );
+  internalReviews = signal<PlaceReview[]>(this.readStorage<PlaceReview[]>(this.reviewsStorageKey, []));
   currentUser = signal<User>(this.readStorage<User>(this.userStorageKey, DEFAULT_USER));
+  authToken = signal(this.readStorage<string>(this.authTokenStorageKey, ''));
   private favoriteSlugs$ = toObservable(this.favoriteSlugs).pipe(
     startWith(this.favoriteSlugs())
   );
@@ -257,7 +264,11 @@ export class DataService {
     shareReplay(1)
   );
 
-  constructor() {}
+  constructor() {
+    if (this.isAuthenticated() && this.authToken()) {
+      this.refreshFavoritesFromApi();
+    }
+  }
 
   getDb(): Observable<Database> {
     return this.db$;
@@ -395,11 +406,27 @@ export class DataService {
       }
 
       const isFavorite = this.favoriteSlugs().includes(slug);
+      const authToken = this.authToken();
+
+      if (!this.isAuthenticated() || !authToken) {
+        const next = isFavorite
+          ? this.favoriteSlugs().filter((item) => item !== slug)
+          : [...this.favoriteSlugs(), slug];
+
+        this.favoriteSlugs.set([...new Set(next)]);
+        this.writeStorage(this.favoritesStorageKey, this.favoriteSlugs());
+        return;
+      }
+
       const userId = this.getBackendUserId();
 
+      if (userId === null) {
+        return;
+      }
+
       const request$ = isFavorite
-        ? this.locationApi.removeFavorite(userId, place.id)
-        : this.locationApi.addFavorite(userId, place.id);
+        ? this.locationApi.removeFavorite(userId, place.id, authToken)
+        : this.locationApi.addFavorite(userId, place.id, authToken);
 
       request$
         .pipe(
@@ -439,50 +466,83 @@ export class DataService {
     );
   }
 
-  submitReview(review: StoredReviewDraft) {
+  submitReview(review: StoredReviewDraft): Observable<PlaceReview> {
+    if (!this.isAuthenticated() || !this.authToken()) {
+      return throwError(() => new Error('Vui long dang nhap de gui danh gia.'));
+    }
     const currentUser = this.currentUser();
-    const nextReview: PlaceReview = {
-      id: `local-${Date.now()}`,
-      place_slug: review.place_slug,
-      source: 'internal',
-      user_name: currentUser.name,
-      avatar: currentUser.avatar,
-      rating: review.rating,
-      comment: review.comment,
-      created_at: new Date().toISOString(),
-      images: review.images,
-      reviewer_profile: null,
-      is_local_guide: false,
-    };
 
-    const nextReviews = [nextReview, ...this.internalReviews()];
-    this.internalReviews.set(nextReviews);
-    this.writeStorage(this.reviewsStorageKey, nextReviews);
+    return this.getPlaceBySlug(review.place_slug).pipe(
+      switchMap((foundPlace) => {
+        if (!foundPlace) {
+          return throwError(() => new Error('Khong tim thay dia diem de gui danh gia.'));
+        }
+
+        return this.http.post<BackendApiEnvelope<any>>(
+          `${this.apiBaseUrl}/locations/${foundPlace.id}/reviews`,
+          {
+            rating: review.rating,
+            comment: review.comment,
+            images: review.images,
+          },
+          {
+            headers: this.authHeaders(this.authToken()),
+          }
+        );
+      }),
+      map((response) => ({
+        id: String(response.data.id),
+        place_slug: review.place_slug,
+        source: 'internal' as const,
+        user_name: response.data.reviewer_name ?? currentUser.name,
+        avatar: response.data.reviewer_avatar_url ?? currentUser.avatar,
+        rating: Number(response.data.rating ?? review.rating),
+        comment: response.data.review_text ?? review.comment,
+        created_at: response.data.published_at ?? new Date().toISOString(),
+        images: Array.isArray(response.data.raw_payload?.images) ? response.data.raw_payload.images : review.images,
+        reviewer_profile: response.data.reviewer_profile ?? null,
+        is_local_guide: false,
+        moderation_status: response.data.moderation_status ?? 'pending',
+      })),
+      tap((nextReview) => {
+        const nextReviews = [nextReview, ...this.internalReviews()];
+        this.internalReviews.set(nextReviews);
+        this.writeStorage(this.reviewsStorageKey, nextReviews);
+      })
+    );
   }
 
   login(email: string, password: string): Observable<User> {
     return this.http
-      .post<BackendApiEnvelope<BackendUser>>(`${this.apiBaseUrl}/auth/login`, {
+      .post<BackendApiEnvelope<BackendAuthPayload>>(`${this.apiBaseUrl}/auth/login`, {
         email,
         password,
       })
       .pipe(
-        map((response) => this.mapBackendUserToUser(response.data)),
-        tap((user) => this.persistCurrentUser(user))
+        map((response) => ({
+          user: this.mapBackendUserToUser(response.data.user),
+          token: response.data.token,
+        })),
+        tap(({ user, token }) => this.persistCurrentUser(user, token)),
+        map(({ user }) => user)
       );
   }
 
   register(name: string, email: string, password: string): Observable<User> {
     return this.http
-      .post<BackendApiEnvelope<BackendUser>>(`${this.apiBaseUrl}/auth/register`, {
+      .post<BackendApiEnvelope<BackendAuthPayload>>(`${this.apiBaseUrl}/auth/register`, {
         name,
         email,
         password,
         password_confirmation: password,
       })
       .pipe(
-        map((response) => this.mapBackendUserToUser(response.data)),
-        tap((user) => this.persistCurrentUser(user))
+        map((response) => ({
+          user: this.mapBackendUserToUser(response.data.user),
+          token: response.data.token,
+        })),
+        tap(({ user, token }) => this.persistCurrentUser(user, token)),
+        map(({ user }) => user)
       );
   }
 
@@ -495,7 +555,7 @@ export class DataService {
       email: user.email?.trim() || this.currentUser().email,
     };
 
-    this.persistCurrentUser(nextUser);
+    this.persistCurrentUser(nextUser, this.authToken());
   }
 
   getCategoryLabel(categoryId: string): string {
@@ -522,9 +582,14 @@ export class DataService {
 
   private refreshFavoritesFromApi() {
     const userId = this.getBackendUserId();
+    const authToken = this.authToken();
+
+    if (userId === null || !authToken) {
+      return;
+    }
 
     this.locationApi
-      .fetchFavoriteSlugs(userId)
+      .fetchFavoriteSlugs(userId, authToken)
       .pipe(catchError(() => of(this.favoriteSlugs())))
       .subscribe((slugs) => {
         this.favoriteSlugs.set([...new Set(slugs)]);
@@ -581,9 +646,9 @@ export class DataService {
     return PROVINCE_MAPPINGS.find((mapping) => mapping.id === cityId)?.provinceCode;
   }
 
-  private getBackendUserId(): number {
+  private getBackendUserId(): number | null {
     const parsed = Number(this.currentUser().id);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : BACKEND_API_CONFIG.defaultUserId;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }
 
   private mapBackendUserToUser(user: BackendUser): User {
@@ -601,12 +666,21 @@ export class DataService {
       bio: user.bio?.trim() || DEFAULT_USER.bio,
       membership: user.membership_tier?.trim() || DEFAULT_USER.membership,
       points: typeof user.points === 'number' ? user.points : DEFAULT_USER.points,
+      role: (user.role?.trim() as User['role']) || 'user',
     };
   }
 
-  private persistCurrentUser(user: User) {
+  private persistCurrentUser(user: User, token: string) {
     this.currentUser.set(user);
     this.writeStorage(this.userStorageKey, user);
+    this.authToken.set(token);
+    this.writeStorage(this.authTokenStorageKey, token);
     this.refreshFavoritesFromApi();
+  }
+
+  private authHeaders(token: string): HttpHeaders {
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
   }
 }

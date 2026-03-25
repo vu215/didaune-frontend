@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 import { HomePageData, Place } from '../models/app.models';
 import { BACKEND_API_CONFIG } from '../config/backend-api.config';
@@ -155,9 +155,11 @@ export class LocationApiService {
       );
   }
 
-  fetchFavoriteSlugs(userId: number): Observable<string[]> {
+  fetchFavoriteSlugs(userId: number, authToken: string): Observable<string[]> {
     return this.http
-      .get<BackendApiEnvelope<BackendFavorite[]>>(`${this.apiBaseUrl}/users/${userId}/favorites`)
+      .get<BackendApiEnvelope<BackendFavorite[]>>(`${this.apiBaseUrl}/users/${userId}/favorites`, {
+        headers: this.authHeaders(authToken),
+      })
       .pipe(
         map((response) =>
           response.data
@@ -167,14 +169,22 @@ export class LocationApiService {
       );
   }
 
-  addFavorite(userId: number, locationId: string): Observable<unknown> {
-    return this.http.post(`${this.apiBaseUrl}/users/${userId}/favorites`, {
-      location_id: locationId,
-    });
+  addFavorite(userId: number, locationId: string, authToken: string): Observable<unknown> {
+    return this.http.post(
+      `${this.apiBaseUrl}/users/${userId}/favorites`,
+      {
+        location_id: locationId,
+      },
+      {
+        headers: this.authHeaders(authToken),
+      }
+    );
   }
 
-  removeFavorite(userId: number, locationId: string): Observable<unknown> {
-    return this.http.delete(`${this.apiBaseUrl}/users/${userId}/favorites/${locationId}`);
+  removeFavorite(userId: number, locationId: string, authToken: string): Observable<unknown> {
+    return this.http.delete(`${this.apiBaseUrl}/users/${userId}/favorites/${locationId}`, {
+      headers: this.authHeaders(authToken),
+    });
   }
 
   private fetchLocationPage(
@@ -201,5 +211,11 @@ export class LocationApiService {
 
   private getProvinceCodeByCityId(cityId: string): number | undefined {
     return PROVINCE_MAPPINGS.find((mapping) => mapping.id === cityId)?.provinceCode;
+  }
+
+  private authHeaders(token: string): HttpHeaders {
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
   }
 }
