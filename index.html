@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - DiDauNe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 flex min-h-screen">
+
+    <aside class="w-20 lg:w-64 bg-slate-900 text-slate-400 flex flex-col transition-all duration-300">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="text-white font-semibold text-xl hidden lg:block tracking-tight">DiDauNe <span
+                    class="text-orange-500">.</span></span>
+        </div>
+
+        <nav class="flex-1 px-4 mt-4 space-y-2">
+            <a href="#" class="flex items-center gap-4 p-3 bg-orange-500/10 text-orange-500 rounded-xl transition">
+                <i class="fas fa-th-large w-6 text-center text-lg"></i>
+                <span class="hidden lg:block font-medium text-sm">Tổng quan</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 p-3 hover:bg-slate-800 hover:text-white rounded-xl transition">
+                <i class="fas fa-store w-6 text-center text-lg"></i>
+                <span class="hidden lg:block font-medium text-sm">Đối tác</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 p-3 hover:bg-slate-800 hover:text-white rounded-xl transition">
+                <i class="fas fa-star w-6 text-center text-lg"></i>
+                <span class="hidden lg:block font-medium text-sm">Đánh giá</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 p-3 hover:bg-slate-800 hover:text-white rounded-xl transition">
+                <i class="fas fa-magic w-6 text-center text-lg"></i>
+                <span class="hidden lg:block font-medium text-sm">AI Insights</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 lg:bg-slate-800 p-2 rounded-xl">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=f97316&color=fff" class="w-8 h-8 rounded-lg"
+                    alt="Avatar">
+                <div class="hidden lg:block">
+                    <p class="text-xs font-semibold text-white">Vũ Trần</p>
+                    <p class="text-[10px]">Quản trị viên</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-2xl font-semibold text-slate-800">Chào buổi sáng, Vũ!</h1>
+                <p class="text-sm text-slate-500">Đây là những gì đang diễn ra với dự án của bạn.</p>
+            </div>
+            <div class="flex gap-3">
+                <button
+                    class="p-2 px-4 bg-white border border-slate-200 rounded-xl text-sm font-medium hover:bg-slate-50 transition">
+                    <i class="fas fa-download mr-2 text-slate-400"></i> Xuất báo cáo
+                </button>
+                <button
+                    class="p-2 px-4 bg-orange-500 text-white rounded-xl text-sm font-medium hover:bg-orange-600 shadow-lg shadow-orange-200 transition">
+                    + Thêm địa điểm
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <p class="text-slate-500 text-xs font-medium uppercase tracking-wider">Tổng địa điểm</p>
+                <h3 class="text-2xl font-bold mt-1">1,284</h3>
+                <span class="text-emerald-500 text-xs font-medium italic">+12% tháng này</span>
+            </div>
+
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-10 h-10 bg-orange-50 text-orange-500 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-users"></i>
+                </div>
+                <p class="text-slate-500 text-xs font-medium uppercase tracking-wider">Đối tác mới</p>
+                <h3 class="text-2xl font-bold mt-1">48</h3>
+                <span class="text-slate-400 text-xs font-medium italic">Đang chờ duyệt: 5</span>
+            </div>
+
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <p class="text-slate-500 text-xs font-medium uppercase tracking-wider">AI Itineraries</p>
+                <h3 class="text-2xl font-bold mt-1">8,502</h3>
+                <span class="text-emerald-500 text-xs font-medium italic">+24% hiệu suất</span>
+            </div>
+
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-10 h-10 bg-pink-50 text-pink-500 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <p class="text-slate-500 text-xs font-medium uppercase tracking-wider">Review mới</p>
+                <h3 class="text-2xl font-bold mt-1">312</h3>
+                <span class="text-orange-500 text-xs font-medium italic">Cần phản hồi</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-semibold text-slate-800">Yêu cầu đối tác gần đây</h2>
+                    <a href="#" class="text-orange-500 text-xs font-medium hover:underline">Xem tất cả</a>
+                </div>
+                <div class="space-y-4">
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 bg-slate-200 rounded-lg overflow-hidden font-bold flex items-center justify-center text-slate-400 italic">
+                                Cafe</div>
+                            <div>
+                                <p class="text-sm font-semibold">The Minimalist Coffee</p>
+                                <p class="text-xs text-slate-400">Quận 1, TP.HCM • Đăng ký 2h trước</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="p-2 px-3 text-xs font-semibold bg-emerald-500 text-white rounded-lg">Duyệt</button>
+                            <button class="p-2 px-3 text-xs font-semibold bg-slate-200 text-slate-600 rounded-lg">Bỏ
+                                qua</button>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 bg-slate-200 rounded-lg overflow-hidden font-bold flex items-center justify-center text-slate-400 italic">
+                                Bar</div>
+                            <div>
+                                <p class="text-sm font-semibold">Neon Sunset Lounge</p>
+                                <p class="text-xs text-slate-400">Thảo Điền, Quận 2 • Đăng ký 5h trước</p>
+                            </div>
+                        </div>
+                        <span
+                            class="px-3 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-full uppercase">Chờ
+                            xử lý</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-2xl text-white">
+                <h2 class="font-semibold mb-4 text-orange-400">Xu hướng AI (Hot Vibes)</h2>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span>Vibe Neo-Brutalism</span>
+                            <span>78%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-orange-500 h-full w-[78%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span>Hẹn hò lãng mạn</span>
+                            <span>62%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-400 h-full w-[62%]"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="mt-8 p-4 bg-slate-800 rounded-xl border border-slate-700 italic text-sm text-slate-400 text-center">
+                        "AI đang gợi ý nhiều hơn cho các địa điểm có không gian mở vào cuối tuần này."
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-semibold text-slate-800">Lưu lượng người dùng & Booking</h2>
+                    <div class="flex gap-2">
+                        <span
+                            class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] rounded-full cursor-pointer hover:bg-orange-100 hover:text-orange-500 transition">7
+                            ngày</span>
+                        <span
+                            class="px-3 py-1 bg-orange-500 text-white text-[10px] rounded-full cursor-pointer shadow-sm">30
+                            ngày</span>
+                    </div>
+                </div>
+                <div class="relative h-48 w-full flex items-end gap-2">
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[40%] group relative">
+                        <span
+                            class="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-slate-800 text-white p-1 rounded">400</span>
+                    </div>
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[60%]">
+                    </div>
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[45%]">
+                    </div>
+                    <div class="flex-1 bg-orange-500 rounded-t-lg h-[85%] relative shadow-lg shadow-orange-100"></div>
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[70%]">
+                    </div>
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[55%]">
+                    </div>
+                    <div
+                        class="flex-1 bg-slate-100 rounded-t-lg hover:bg-orange-400 transition-all cursor-pointer h-[90%]">
+                    </div>
+                </div>
+                <div class="flex justify-between mt-4 text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+            </div>
+
+            <div
+                class="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-2xl text-white shadow-xl shadow-orange-100">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <h2 class="font-semibold italic">AI Assistant</h2>
+                </div>
+                <div class="space-y-4">
+                    <div class="p-3 bg-white/10 rounded-xl border border-white/20">
+                        <p class="text-[10px] text-orange-100 uppercase">Gợi ý thành công</p>
+                        <p class="text-xl font-bold">92.4%</p>
+                    </div>
+                    <div class="p-3 bg-white/10 rounded-xl border border-white/20">
+                        <p class="text-[10px] text-orange-100 uppercase">Top Vibe tuần này</p>
+                        <p class="text-lg font-semibold">#Cyberpunk_Cafe</p>
+                    </div>
+                    <button
+                        class="w-full py-3 bg-slate-900 text-white text-xs font-bold rounded-xl mt-2 hover:bg-slate-800 transition uppercase tracking-widest">Huấn
+                        luyện AI</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+                    Đánh giá mới nhất <span
+                        class="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">12</span>
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 hover:border-orange-200 transition group">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=User+A&background=e2e8f0"
+                                class="w-8 h-8 rounded-full">
+                            <div>
+                                <h4 class="text-xs font-bold">Hoàng Nam</h4>
+                                <div class="flex text-[8px] text-orange-400">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                        class="fas fa-star"></i><i class="fas fa-star text-slate-200"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 italic">5 phút trước</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 line-clamp-2 italic">"Không gian ở đây rất hợp
+                        để hẹn hò, AI gợi ý lịch trình cực chuẩn..."</p>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            class="flex-1 py-2 bg-slate-50 text-[10px] font-bold rounded-lg hover:bg-orange-50 hover:text-orange-500">Ẩn</button>
+                        <button class="flex-1 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-lg">Phản
+                            hồi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h2 class="font-semibold text-slate-800 mb-6">Đối tác Tiềm năng (Hot)</h2>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[10px] text-slate-400 uppercase border-b border-slate-50">
+                            <th class="pb-3 font-medium">Tên địa điểm</th>
+                            <th class="pb-3 font-medium text-center">Lượt ghé</th>
+                            <th class="pb-3 font-medium text-right">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs">
+                        <tr class="border-b border-slate-50 last:border-0 group">
+                            <td class="py-4">
+                                <div class="font-bold">Mây Lang Thang Cafe</div>
+                                <div class="text-[10px] text-slate-400 italic">Đà Lạt</div>
+                            </td>
+                            <td class="py-4 text-center font-semibold">1.2k</td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 text-slate-400 hover:text-orange-500 transition"><i
+                                        class="fas fa-external-link-alt"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-slate-200 rounded-2xl relative overflow-hidden group">
+                <div class="absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1000'); filter: grayscale(100%) opacity(0.3);">
+                </div>
+                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
+                <div class="relative z-10 p-6 flex flex-col h-full justify-between">
+                    <div class="flex justify-between items-start">
+                        <h2 class="font-semibold text-white">Bản đồ Khu vực</h2>
+                        <span
+                            class="px-2 py-1 bg-white/20 backdrop-blur-md rounded text-[10px] text-white uppercase tracking-tighter italic">Live
+                            from GG Map</span>
+                    </div>
+                    <div class="text-center">
+                        <div
+                            class="w-16 h-16 bg-orange-500/80 rounded-full inline-flex items-center justify-center animate-pulse shadow-2xl shadow-orange-500/50">
+                            <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                        </div>
+                        <p class="text-white text-xs mt-4 font-bold uppercase tracking-widest">Đang quét 45 điểm mới</p>
+                    </div>
+                    <button
+                        class="w-full py-3 bg-white text-slate-900 text-xs font-bold rounded-xl hover:bg-orange-500 hover:text-white transition">Mở
+                        bản đồ lớn</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>

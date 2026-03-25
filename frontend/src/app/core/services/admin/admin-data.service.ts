@@ -1,8 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable, combineLatest, map, of, shareReplay } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, Subject, combineLatest, map, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { BACKEND_API_CONFIG } from '../../config/backend-api.config';
+import { Place, PlaceReview } from '../../models/app.models';
 import { DataService } from '../data.service';
-import { Place, PlaceReview, User } from '../../models/app.models';
+import { PlaceMapperService, BackendLocation } from '../place-mapper.service';
+import { AdminAuthService } from './admin-auth.service';
 
 export interface AdminKpi {
   label: string;
@@ -75,64 +78,85 @@ export interface AdminReviewRow {
   moderationStatus: 'approved' | 'pending' | 'flagged';
 }
 
-type AdminLocationStatus = AdminLocationRow['status'];
-type AdminReviewStatus = AdminReviewRow['moderationStatus'];
-type AdminPartnerStatus = AdminPartnerRow['status'];
-type AdminImportStatus = AdminImportBatch['status'];
-type AdminCollectionStatus = AdminCollectionRow['status'];
-
-interface AdminMutableState {
-  locationStatuses: Record<string, AdminLocationStatus>;
-  reviewStatuses: Record<string, AdminReviewStatus>;
-  partnerStatuses: Record<string, AdminPartnerStatus>;
-  importStatuses: Record<string, AdminImportStatus>;
-  collectionStatuses: Record<string, AdminCollectionStatus>;
+interface BackendApiEnvelope<T> {
+  success: boolean;
+  message?: string;
+  data: T;
 }
 
-const ADMIN_STATE_STORAGE_KEY = 'didaune_admin_state';
+interface BackendPaginated<T> {
+  data: T[];
+}
+
+interface BackendAdminReview {
+  id: string;
+  reviewer_name: string | null;
+  reviewer_avatar_url?: string | null;
+  reviewer_profile?: string | null;
+  rating: number | null;
+  review_text: string | null;
+  published_at: string | null;
+  review_source?: 'external' | 'internal' | string;
+  moderation_status: 'approved' | 'pending' | 'flagged';
+  raw_payload?: { images?: string[] } | null;
+  location?: { name?: string; slug?: string | null } | null;
+}
+
+interface BackendAdminUser {
+  id: number | string;
+  name: string;
+  email: string;
+  role?: string | null;
+  is_active?: boolean | null;
+  favorites_count?: number;
+  location_reviews_count?: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminDataService {
+  private http = inject(HttpClient);
+  private auth = inject(AdminAuthService);
   private dataService = inject(DataService);
-  private adminState = signal<AdminMutableState>(this.readState());
-
-  private places$ = this.dataService.getPlaces().pipe(shareReplay(1));
-  private categories$ = this.dataService.getCategories().pipe(shareReplay(1));
-  private amenities$ = this.dataService.getAmenities().pipe(shareReplay(1));
-  private db$ = this.dataService.getDb().pipe(shareReplay(1));
-  private adminState$ = toObservable(this.adminState);
+  private mapper = inject(PlaceMapperService);
+  private apiBaseUrl = BACKEND_API_CONFIG.baseUrl;
+  private refreshLocations$ = new Subject<void>();
+  private refreshReviews$ = new Subject<void>();
+  private refreshUsers$ = new Subject<void>();
+  private refreshPartners$ = new Subject<void>();
+  private refreshImports$ = new Subject<void>();
+  private refreshCollections$ = new Subject<void>();
 
   readonly kpis$: Observable<AdminKpi[]> = combineLatest([
-    this.places$,
+    this.getAdminLocations(),
     this.getAdminUsers(),
     this.getAdminReviews(),
     this.getPartnerRequests(),
   ]).pipe(
-    map(([places, users, reviews, partners]) => [
+    map(([locations, users, reviews, partners]) => [
       {
-        label: 'Dia diem dang live',
-        value: String(places.length),
-        delta: `${places.filter((place) => place.is_new).length} moi cap nhat`,
+        label: 'Địa điểm đang live',
+        value: String(locations.filter((row) => row.status === 'published').length),
+        delta: `+${locations.filter((row) => row.status === 'draft').length} nháp`,
         tone: 'from-orange-500 to-rose-500',
       },
       {
-        label: 'Nguoi dung',
+        label: 'Người dùng',
         value: String(users.length),
-        delta: `${users.filter((user) => user.status === 'flagged').length} can xem`,
+        delta: `${users.filter((user) => user.status === 'flagged').length} cần xem`,
         tone: 'from-sky-500 to-cyan-500',
       },
       {
-        label: 'Review',
-        value: String(reviews.length),
-        delta: `${reviews.filter((review) => review.moderationStatus !== 'approved').length} cho duyet`,
+        label: 'Đánh giá mới',
+        value: String(reviews.filter((review) => review.moderationStatus === 'pending').length),
+        delta: `+${reviews.filter((review) => review.moderationStatus === 'pending').length}`,
         tone: 'from-emerald-500 to-teal-500',
       },
       {
-        label: 'Partner claims',
+        label: 'Yêu cầu Partner',
         value: String(partners.length),
-        delta: `${partners.filter((partner) => partner.status === 'pending').length} pending`,
+        delta: `${partners.filter((partner) => partner.status === 'pending').length} chờ duyệt`,
         tone: 'from-violet-500 to-fuchsia-500',
       },
     ]),
@@ -140,20 +164,28 @@ export class AdminDataService {
   );
 
   getAdminLocations(): Observable<AdminLocationRow[]> {
-    return combineLatest([this.places$, this.adminState$]).pipe(
-      map(([places, adminState]) =>
-        places
-          .map((place) => {
-            const completeness = this.calculateCompleteness(place);
-            const derivedStatus: AdminLocationStatus =
-              completeness < 70 ? 'needs_review' : place.is_new ? 'draft' : 'published';
-            return {
-              place,
-              completeness,
-              status: adminState.locationStatuses[place.slug] ?? derivedStatus,
-            } satisfies AdminLocationRow;
-          })
-          .sort((a, b) => b.completeness - a.completeness)
+    return this.refreshLocations$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<BackendPaginated<BackendLocation>>>(
+          `${this.apiBaseUrl}/locations`,
+          {
+            headers: this.auth.authHeaders(),
+            params: new HttpParams().set('per_page', '50'),
+          }
+        )
+      ),
+      map((response) =>
+        response.data.data.map((location, index, source) => {
+          const place = this.mapper.normalizeBackendLocation(location, index, source.length);
+          const completeness = this.calculateCompleteness(place);
+
+          return {
+            place,
+            completeness,
+            status: place.listing_status ?? (completeness < 70 ? 'needs_review' : 'published'),
+          } satisfies AdminLocationRow;
+        })
       ),
       shareReplay(1)
     );
@@ -161,143 +193,121 @@ export class AdminDataService {
 
   getLocationBySlug(slug: string): Observable<AdminLocationRow | undefined> {
     return this.getAdminLocations().pipe(
-      map((locations) => locations.find((location) => location.place.slug === slug))
+      map((rows) => rows.find((row) => row.place.slug === slug))
     );
   }
 
   getAdminReviews(): Observable<AdminReviewRow[]> {
-    return combineLatest([this.places$, this.adminState$]).pipe(
-      map(([places, adminState]) =>
-        places
-          .flatMap((place) =>
-            place.reviews.map((review) => {
-              const derivedStatus: AdminReviewStatus =
-                review.source === 'internal'
-                  ? 'pending'
-                  : review.comment.length < 40
-                    ? 'flagged'
-                    : 'approved';
-
-              return {
-                review,
-                placeName: place.name,
-                moderationStatus: adminState.reviewStatuses[review.id] ?? derivedStatus,
-              } satisfies AdminReviewRow;
-            })
-          )
-          .sort(
-            (a, b) =>
-              new Date(b.review.created_at).getTime() -
-              new Date(a.review.created_at).getTime()
-          )
+    return this.refreshReviews$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<BackendPaginated<BackendAdminReview>>>(
+          `${this.apiBaseUrl}/reviews`,
+          {
+            headers: this.auth.authHeaders(),
+            params: new HttpParams().set('per_page', '50'),
+          }
+        )
+      ),
+      map((response) =>
+        response.data.data.map((review) => ({
+          review: {
+            id: String(review.id),
+            place_slug: review.location?.slug ?? '',
+            source: (review.review_source === 'internal' ? 'internal' : 'external') as
+              | 'internal'
+              | 'external',
+            user_name: review.reviewer_name ?? 'Khach hang',
+            avatar:
+              review.reviewer_avatar_url ??
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                review.reviewer_name ?? 'Khach'
+              )}&background=e2e8f0&color=0f172a`,
+            rating: Number(review.rating ?? 0),
+            comment: review.review_text ?? '',
+            created_at: review.published_at ?? new Date().toISOString(),
+            images: review.raw_payload?.images ?? [],
+            reviewer_profile: review.reviewer_profile ?? null,
+            moderation_status: review.moderation_status,
+          },
+          placeName: review.location?.name ?? 'Khong ro',
+          moderationStatus: review.moderation_status,
+        }))
       ),
       shareReplay(1)
     );
   }
 
   getAdminUsers(): Observable<AdminUserRow[]> {
-    return combineLatest([this.db$, this.places$]).pipe(
-      map(([db, places]) => {
-        const placeReviews = places.flatMap((place) => place.reviews);
-        const baseUsers: AdminUserRow[] = db.users.map((user, index) => ({
-          id: user.id,
+    return this.refreshUsers$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<BackendPaginated<BackendAdminUser>>>(
+          `${this.apiBaseUrl}/users`,
+          {
+            headers: this.auth.authHeaders(),
+            params: new HttpParams().set('per_page', '50'),
+          }
+        )
+      ),
+      map((response) =>
+        response.data.data.map((user) => ({
+          id: String(user.id),
           name: user.name,
           email: user.email,
-          role: (index === 0 ? 'super_admin' : 'user') as AdminUserRow['role'],
-          reviews: placeReviews.filter((review) => review.user_name === user.name).length,
-          favorites: index === 0 ? 6 : 2,
-          status: 'active' as AdminUserRow['status'],
-        }));
-
-        return [
-          ...baseUsers,
-          {
-            id: 'moderator-1',
-            name: 'Lan Moderator',
-            email: 'moderator@didaune.vn',
-            role: 'moderator',
-            reviews: 14,
-            favorites: 11,
-            status: 'active',
-          },
-          {
-            id: 'content-1',
-            name: 'Khanh Content',
-            email: 'content@didaune.vn',
-            role: 'content_admin',
-            reviews: 4,
-            favorites: 8,
-            status: 'flagged',
-          },
-        ] satisfies AdminUserRow[];
-      }),
-      shareReplay(1)
-    );
-  }
-
-  getPartnerRequests(): Observable<AdminPartnerRow[]> {
-    return combineLatest([this.places$, this.adminState$]).pipe(
-      map(([places, adminState]) =>
-        places.slice(0, 6).map((place, index) => {
-          const status: AdminPartnerRow['status'] =
-            index % 4 === 0
-              ? 'pending'
-              : index % 4 === 1
-                ? 'verified'
-                : index % 4 === 2
-                  ? 'active'
-                  : 'rejected';
-
-          return {
-            id: `partner-${index + 1}`,
-            placeName: place.name,
-            ownerName: place.owner_name || `Chu quan ${index + 1}`,
-            district: place.district_name,
-            status: adminState.partnerStatuses[`partner-${index + 1}`] ?? status,
-            source: index % 2 === 0 ? 'Claim form' : 'Import owner data',
-          } satisfies AdminPartnerRow;
-        })
+          role: (user.role as AdminUserRow['role']) || 'user',
+          reviews: user.location_reviews_count ?? 0,
+          favorites: user.favorites_count ?? 0,
+          status: (user.is_active === false ? 'flagged' : 'active') as
+            | 'flagged'
+            | 'active',
+        }))
       ),
       shareReplay(1)
     );
   }
 
+  getPartnerRequests(): Observable<AdminPartnerRow[]> {
+    return this.refreshPartners$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<AdminPartnerRow[]>>(`${this.apiBaseUrl}/admin/partners`, {
+          headers: this.auth.authHeaders(),
+        })
+      ),
+      map((response) => response.data),
+      shareReplay(1)
+    );
+  }
+
   getImportBatches(): Observable<AdminImportBatch[]> {
-    return this.adminState$.pipe(
-      map((adminState) =>
-        [
-          {
-            id: 'batch-hcm-cafe-01',
-            source: 'cafe-in-ho-chi-minh-city-ho-chi-minh-city-vietnam.json',
-            importedAt: '2026-03-21T10:20:00Z',
-            records: 10,
-            status: adminState.importStatuses['batch-hcm-cafe-01'] ?? 'completed',
-            issues: 2,
-          },
-          {
-            id: 'batch-partner-claims',
-            source: 'owner-claims.csv',
-            importedAt: '2026-03-20T08:00:00Z',
-            records: 18,
-            status: adminState.importStatuses['batch-partner-claims'] ?? 'review',
-            issues: 5,
-          },
-          {
-            id: 'batch-image-refresh',
-            source: 'image-refresh-api',
-            importedAt: '2026-03-19T13:15:00Z',
-            records: 42,
-            status: adminState.importStatuses['batch-image-refresh'] ?? 'failed',
-            issues: 12,
-          },
-        ] satisfies AdminImportBatch[]
+    return this.refreshImports$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<any[]>>(`${this.apiBaseUrl}/admin/imports`, {
+          headers: this.auth.authHeaders(),
+        })
+      ),
+      map((response) =>
+        response.data.map((row) => ({
+          id: row.id,
+          source: row.source,
+          importedAt: row.imported_at,
+          records: row.records,
+          status: row.status,
+          issues: row.issues,
+        }))
       ),
       shareReplay(1)
     );
   }
 
   getTaxonomyRows(): Observable<AdminTaxonomyRow[]> {
-    return combineLatest([this.categories$, this.amenities$, this.places$]).pipe(
+    return combineLatest([
+      this.dataService.getCategories(),
+      this.dataService.getAmenities(),
+      this.dataService.getPlaces(),
+    ]).pipe(
       map(([categories, amenities, places]) => {
         const categoryRows = categories.map((category) => ({
           id: category.id,
@@ -306,6 +316,7 @@ export class AdminDataService {
           usage: places.filter((place) => place.categories.includes(category.id)).length,
           accent: category.color,
         }));
+
         const amenityRows = amenities.map((amenity) => ({
           id: amenity.id,
           name: amenity.name,
@@ -313,6 +324,7 @@ export class AdminDataService {
           usage: places.filter((place) => place.amenities.includes(amenity.id)).length,
           accent: 'text-slate-600',
         }));
+
         const collectionRows: AdminTaxonomyRow[] = [
           {
             id: 'deadline',
@@ -337,121 +349,227 @@ export class AdminDataService {
   }
 
   getCollections(): Observable<AdminCollectionRow[]> {
-    return combineLatest([this.places$, this.adminState$]).pipe(
-      map(([places, adminState]) =>
-        [
-          {
-            id: 'collection-work',
-            title: 'Cay deadline xuyen dem',
-            count: places.filter((place) => place.categories.includes('work')).length,
-            theme: 'Focus / study',
-            status: adminState.collectionStatuses['collection-work'] ?? ('published' as const),
-          },
-          {
-            id: 'collection-date',
-            title: 'Hen ho dep va chill',
-            count: places.filter((place) => place.categories.includes('date')).length,
-            theme: 'Date / romance',
-            status: adminState.collectionStatuses['collection-date'] ?? ('published' as const),
-          },
-          {
-            id: 'collection-photo',
-            title: 'Song ao co gu',
-            count: places.filter((place) => place.categories.includes('photo')).length,
-            theme: 'Photo / visual',
-            status: adminState.collectionStatuses['collection-photo'] ?? ('draft' as const),
-          },
-        ] satisfies AdminCollectionRow[]
+    return this.refreshCollections$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.http.get<BackendApiEnvelope<any[]>>(`${this.apiBaseUrl}/admin/collections`, {
+          headers: this.auth.authHeaders(),
+        })
+      ),
+      map((response) =>
+        response.data.map((row) => ({
+          id: row.id,
+          title: row.title,
+          count: row.count,
+          theme: row.theme,
+          status: row.status,
+        }))
       ),
       shareReplay(1)
     );
   }
 
-  updateLocationStatus(slug: string, status: AdminLocationStatus) {
-    this.updateState({
-      locationStatuses: {
-        ...this.adminState().locationStatuses,
-        [slug]: status,
-      },
-    });
+  updateLocationStatus(slug: string, status: AdminLocationRow['status']) {
+    this.getLocationBySlug(slug)
+      .pipe(
+        switchMap((row) =>
+          this.http.patch(
+            `${this.apiBaseUrl}/locations/${row?.place.id}`,
+            { slug, listing_status: status },
+            { headers: this.auth.authHeaders() }
+          )
+        ),
+        tap(() => this.refreshLocations$.next())
+      )
+      .subscribe();
   }
 
-  updateReviewStatus(reviewId: string, status: AdminReviewStatus) {
-    this.updateState({
-      reviewStatuses: {
-        ...this.adminState().reviewStatuses,
-        [reviewId]: status,
-      },
-    });
+  deleteLocation(slug: string) {
+    this.getLocationBySlug(slug)
+      .pipe(
+        switchMap((row) =>
+          this.http.delete(`${this.apiBaseUrl}/locations/${row?.place.id}`, {
+            headers: this.auth.authHeaders(),
+          })
+        ),
+        tap(() => this.refreshLocations$.next())
+      )
+      .subscribe();
   }
 
-  updatePartnerStatus(id: string, status: AdminPartnerStatus) {
-    this.updateState({
-      partnerStatuses: {
-        ...this.adminState().partnerStatuses,
-        [id]: status,
-      },
-    });
+  updateLocation(slug: string, partial: Partial<Place>) {
+    this.getLocationBySlug(slug)
+      .pipe(
+        switchMap((row) =>
+          this.http.patch(
+            `${this.apiBaseUrl}/locations/${row?.place.id}`,
+            this.mapPlaceToLocationPayload({
+              ...row?.place,
+              ...partial,
+            }),
+            { headers: this.auth.authHeaders() }
+          )
+        ),
+        tap(() => this.refreshLocations$.next())
+      )
+      .subscribe();
   }
 
-  updateImportStatus(id: string, status: AdminImportStatus) {
-    this.updateState({
-      importStatuses: {
-        ...this.adminState().importStatuses,
-        [id]: status,
-      },
-    });
+  createLocation(place: Partial<Place>): Observable<Place> {
+    return this.http
+      .post<BackendApiEnvelope<BackendLocation>>(
+        `${this.apiBaseUrl}/locations`,
+        this.mapPlaceToLocationPayload(place),
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(
+        map((response) => this.mapper.normalizeBackendLocation(response.data, 0, 1)),
+        tap(() => this.refreshLocations$.next())
+      );
   }
 
-  updateCollectionStatus(id: string, status: AdminCollectionStatus) {
-    this.updateState({
-      collectionStatuses: {
-        ...this.adminState().collectionStatuses,
-        [id]: status,
-      },
-    });
+  getDashboardCharts(): Observable<{ traffic: number[]; vibes: { name: string; value: number }[] }> {
+    return this.dataService.getPlaces().pipe(
+      map((places) => {
+        const traffic = [42, 58, 45, 82, 70, 65, 95];
+        const vibeCounts: Record<string, number> = {};
+
+        places.forEach((place) => {
+          place.categories.forEach((category) => {
+            vibeCounts[category] = (vibeCounts[category] || 0) + 1;
+          });
+        });
+
+        const vibes = Object.entries(vibeCounts)
+          .map(([name, count]) => ({
+            name: name.charAt(0).toUpperCase() + name.slice(1),
+            value: Math.round((count / Math.max(places.length, 1)) * 100),
+          }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 3);
+
+        return { traffic, vibes };
+      }),
+      shareReplay(1)
+    );
+  }
+
+  updateReviewStatus(reviewId: string, status: AdminReviewRow['moderationStatus']) {
+    this.http
+      .patch(
+        `${this.apiBaseUrl}/reviews/${reviewId}`,
+        { moderation_status: status },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshReviews$.next()))
+      .subscribe();
+  }
+
+  updatePartnerStatus(id: string, status: AdminPartnerRow['status']) {
+    this.http
+      .patch(
+        `${this.apiBaseUrl}/admin/partners/${id}`,
+        { status },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshPartners$.next()))
+      .subscribe();
+  }
+
+  updateImportStatus(id: string, status: AdminImportBatch['status']) {
+    this.http
+      .patch(
+        `${this.apiBaseUrl}/admin/imports/${id}`,
+        { status },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshImports$.next()))
+      .subscribe();
+  }
+
+  updateCollectionStatus(id: string, status: AdminCollectionRow['status']) {
+    this.http
+      .patch(
+        `${this.apiBaseUrl}/admin/collections/${id}`,
+        { status },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshCollections$.next()))
+      .subscribe();
+  }
+
+  addUser(user: AdminUserRow) {
+    this.http
+      .post(
+        `${this.apiBaseUrl}/users`,
+        {
+          name: user.name,
+          email: user.email,
+          password: 'changeme123',
+          role: user.role,
+          is_active: user.status === 'active',
+        },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshUsers$.next()))
+      .subscribe();
+  }
+
+  updateUser(user: Pick<AdminUserRow, 'id' | 'name' | 'email' | 'role' | 'status'>) {
+    this.http
+      .patch(
+        `${this.apiBaseUrl}/users/${user.id}`,
+        {
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          is_active: user.status === 'active',
+        },
+        { headers: this.auth.authHeaders() }
+      )
+      .pipe(tap(() => this.refreshUsers$.next()))
+      .subscribe();
   }
 
   getReports(): Observable<AdminReportRow[]> {
-    return this.places$.pipe(
-      map((places) => {
+    return this.getAdminLocations().pipe(
+      map((rows) => {
+        const places = rows.map((row) => row.place);
         const missingWard = places.filter((place) => !place.area_name).length;
         const missingCoords = places.filter(
           (place) => place.latitude === undefined || place.longitude === undefined
         ).length;
-        const lowCompleteness = places.filter(
-          (place) => this.calculateCompleteness(place) < 70
-        ).length;
+        const lowCompleteness = rows.filter((row) => row.completeness < 70).length;
         const noOwner = places.filter((place) => !place.owner_name).length;
 
         return [
           {
             id: 'report-ward',
-            title: 'Chua map phuong moi',
+            title: 'Chưa map phường mới',
             count: missingWard,
-            severity: (missingWard > 0 ? 'high' : 'low') as AdminReportRow['severity'],
-            description: 'Can review lai mapping dia gioi sau sap nhap.',
+            severity: missingWard > 0 ? 'high' : 'low',
+            description: 'Cần review lại mapping địa giới sau sáp nhập.',
           },
           {
             id: 'report-coords',
-            title: 'Thieu toa do',
+            title: 'Thiếu tọa độ',
             count: missingCoords,
-            severity: (missingCoords > 0 ? 'medium' : 'low') as AdminReportRow['severity'],
-            description: 'Khong the dua vao map va spatial join neu thieu lat/lng.',
+            severity: missingCoords > 0 ? 'medium' : 'low',
+            description: 'Không thể đưa vào map và spatial join nếu thiếu lat/lng.',
           },
           {
             id: 'report-quality',
-            title: 'Ho so dia diem thieu du lieu',
+            title: 'Hồ sơ địa điểm thiếu dữ liệu',
             count: lowCompleteness,
-            severity: (lowCompleteness > 2 ? 'high' : 'medium') as AdminReportRow['severity'],
-            description: 'Can bo sung anh, so dien thoai, menu link, hoac owner data.',
+            severity: lowCompleteness > 2 ? 'high' : 'medium',
+            description: 'Cần bổ sung ảnh, số điện thoại, menu link, hoặc owner data.',
           },
           {
             id: 'report-owner',
-            title: 'Chua gan partner',
+            title: 'Chưa gán partner',
             count: noOwner,
-            severity: 'medium' as AdminReportRow['severity'],
-            description: 'Nhung dia diem nay chua co owner/partner relation ro rang.',
+            severity: 'medium',
+            description: 'Những địa điểm này chưa có owner/partner relation rõ ràng.',
           },
         ] satisfies AdminReportRow[];
       }),
@@ -468,58 +586,30 @@ export class AdminDataService {
       Boolean(place.google_maps_link),
       Boolean(place.website),
       Boolean(place.phone),
-      Boolean(place.reviews.length),
+      Boolean(place.reviews && place.reviews.length),
       Boolean(place.latitude !== undefined && place.longitude !== undefined),
     ];
 
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
   }
 
-  private updateState(partial: Partial<AdminMutableState>) {
-    const nextState = {
-      ...this.adminState(),
-      ...partial,
-    };
-
-    this.adminState.set(nextState);
-    this.writeState(nextState);
-  }
-
-  private readState(): AdminMutableState {
-    if (typeof window === 'undefined') {
-      return this.defaultState();
-    }
-
-    const value = window.localStorage.getItem(ADMIN_STATE_STORAGE_KEY);
-    if (!value) {
-      return this.defaultState();
-    }
-
-    try {
-      return {
-        ...this.defaultState(),
-        ...(JSON.parse(value) as Partial<AdminMutableState>),
-      };
-    } catch {
-      return this.defaultState();
-    }
-  }
-
-  private writeState(state: AdminMutableState) {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    window.localStorage.setItem(ADMIN_STATE_STORAGE_KEY, JSON.stringify(state));
-  }
-
-  private defaultState(): AdminMutableState {
+  private mapPlaceToLocationPayload(place: Partial<Place>) {
     return {
-      locationStatuses: {},
-      reviewStatuses: {},
-      partnerStatuses: {},
-      importStatuses: {},
-      collectionStatuses: {},
+      name: place.name,
+      slug: place.slug,
+      description: place.description,
+      full_address: place.address,
+      ward: place.ward_name,
+      district: place.district_name,
+      city: place.city_name,
+      website: place.website,
+      phone: place.phone,
+      google_maps_link: place.google_maps_link,
+      featured_image: place.image,
+      owner_name: place.owner_name,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      listing_status: place.listing_status ?? 'draft',
     };
   }
 }

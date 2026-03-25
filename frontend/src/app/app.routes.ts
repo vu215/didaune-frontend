@@ -106,6 +106,7 @@ export const routes: Routes = [
         data: { roles: ['content_admin', 'super_admin'] },
         title: 'Admin Reports',
       },
+      { path: '**', redirectTo: '' },
     ],
   },
   {

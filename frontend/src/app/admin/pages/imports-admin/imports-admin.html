@@ -36,10 +36,15 @@
       </span>
     </div>
     <div class="mt-5 flex flex-wrap gap-3">
+      <button type="button" (click)="setStatus(batch.id, 'completed')"
+        [disabled]="!adminAuth.hasCapability('imports.manage') || batch.status === 'completed'"
+        class="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+        Duyệt
+      </button>
       <button type="button" (click)="setStatus(batch.id, 'review')"
         [disabled]="!adminAuth.hasCapability('imports.manage')"
-        class="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
-        Xem trước
+        class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
+        Xử lý lại
       </button>
       <button type="button" (click)="setStatus(batch.id, 'failed')"
         [disabled]="!adminAuth.hasCapability('imports.manage')"

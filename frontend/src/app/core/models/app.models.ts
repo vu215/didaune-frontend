@@ -73,6 +73,7 @@ export interface PlaceReview {
   images: string[];
   reviewer_profile?: string | null;
   is_local_guide?: boolean;
+  moderation_status?: 'approved' | 'pending' | 'flagged';
 }
 
 export interface Place {
@@ -99,6 +100,7 @@ export interface Place {
   amenity_labels: string[];
   is_hot: boolean;
   is_new: boolean;
+  listing_status?: 'published' | 'needs_review' | 'draft';
   discount?: string;
   description: string;
   status: string;
@@ -161,6 +163,7 @@ export interface User {
   bio: string;
   membership: string;
   points: number;
+  role?: 'user' | 'moderator' | 'content_admin' | 'super_admin';
 }
 
 export interface Review extends PlaceReview {

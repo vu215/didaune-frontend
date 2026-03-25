@@ -1,12 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin/admin-auth.service';
 import { AdminDataService, AdminReviewRow } from '../../../core/services/admin/admin-data.service';
 
 @Component({
   selector: 'app-admin-reviews',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './reviews-admin.html',
 })
 export class ReviewsAdmin {

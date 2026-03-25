@@ -27,6 +27,7 @@ export interface BackendLocationReviewImage {
 
 export interface BackendLocationReview {
   id: string;
+  review_source?: 'external' | 'internal' | string;
   reviewer_name: string | null;
   reviewer_avatar_url?: string | null;
   reviewer_profile?: string | null;
@@ -34,6 +35,7 @@ export interface BackendLocationReview {
   review_text: string | null;
   published_at: string | null;
   is_local_guide?: boolean;
+  moderation_status?: 'approved' | 'pending' | 'flagged';
   review_images?: BackendLocationReviewImage[];
 }
 
@@ -90,6 +92,7 @@ export interface BackendLocation {
   is_temporarily_closed?: boolean;
   is_permanently_closed?: boolean;
   raw_payload?: Record<string, unknown> | null;
+  listing_status?: 'published' | 'needs_review' | 'draft' | null;
   hours?: BackendLocationHour[];
   categories?: BackendLocationCategory[];
   images?: BackendLocationImage[];
@@ -124,7 +127,7 @@ export class PlaceMapperService {
     const reviews = (location.reviews ?? []).map((review) => ({
       id: review.id,
       place_slug: location.slug,
-      source: 'external' as const,
+      source: review.review_source === 'internal' ? 'internal' as const : 'external' as const,
       user_name: review.reviewer_name ?? 'Khach hang',
       avatar:
         review.reviewer_avatar_url ??
@@ -135,6 +138,7 @@ export class PlaceMapperService {
       images: (review.review_images ?? []).map((image) => image.image_url),
       reviewer_profile: review.reviewer_profile ?? null,
       is_local_guide: review.is_local_guide ?? false,
+      moderation_status: review.moderation_status ?? 'approved',
     }));
     const categoryIds = this.mapCategoriesFromSource(
       `${location.main_category ?? ''} ${sourceCategories.join(' ')} ${location.description ?? ''}`
@@ -189,6 +193,7 @@ export class PlaceMapperService {
       amenity_labels: amenityIds.map((amenityId) => this.getAmenityLabel(amenityId)),
       is_hot: index < hotThreshold || score >= 420,
       is_new: (location.owner_posts?.length ?? 0) > 0,
+      listing_status: location.listing_status ?? 'published',
       description: this.normalizeDescription(location.description, location.name),
       status: this.buildStatus({
         status: null,
@@ -280,6 +285,7 @@ export class PlaceMapperService {
       amenity_labels: amenityIds.map((amenityId) => this.getAmenityLabel(amenityId)),
       is_hot: index < hotThreshold || score >= 420,
       is_new: (location.owner_posts?.length ?? 0) > 0,
+      listing_status: 'published',
       description: this.normalizeDescription(location.description, location.name),
       status: this.buildStatus(location),
       phone: location.phone ?? null,
